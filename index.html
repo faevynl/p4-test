@@ -404,7 +404,7 @@ function sendToDiscord() {
     const answerIndex = infoQuestions.length + i;
     const answer = answers[answerIndex] || "Failure to provide an answer within the time limit.";
     
-    content += `**Q${i+1}:** ${q}\n────────────\n${answer}\n\n`;
+    content += `**Q${i+1}:** ${q}\n────────────────────────\n${answer}\n\n`;
   });
 
   const payload = {
