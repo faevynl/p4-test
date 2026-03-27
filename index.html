@@ -192,7 +192,6 @@ function loadQuestion() {
     return;
   }
 
-  // Show timer only for main questions
   timerEl.style.display = current >= infoQuestions.length ? 'block' : 'none';
   progressEl.textContent = `Question ${current + 1} of ${allQuestions.length}`;
   questionEl.textContent = allQuestions[current];
@@ -232,37 +231,55 @@ function sendToDiscord() {
 
   const infoValue = infoQuestions.map((q, i) => `**${q}** ${answers[i] || "No answer"}`).join("\n");
 
-  const mainFields = mainQuestions.map((q, i) => ({
-    name: `Question ${i + 1}`,
-    value: `**Q:** ${q}\n**A:** ${answers[infoQuestions.length + i] || "No answer"}`,
-    inline: false
-  }));
+  const mainFields = mainQuestions.map((q, i) => {
+    const answer = answers[infoQuestions.length + i] || "No answer";
+    const value = `**Q:** ${q}\n**A:** ${answer}`;
+    return {
+      name: `Question ${i + 1}`,
+      value: value.length > 1024 ? value.substring(0, 1021) + "..." : value,
+      inline: false
+    };
+  });
 
-  const embed = {
-    title: "📋 TMP Phase 4 Examination",
-    color: 0xff69b4,
-    fields: [
-      {
-        name: "━━━━━━━━━━ Examinee Info ━━━━━━━━━━",
-        value: infoValue,
-        inline: false
-      },
-      ...mainFields,
-      {
-        name: "━━━━━━━━━━ Timing ━━━━━━━━━━",
-        value: `**Total time:** ${formatTime(totalSeconds)}\n**Avg time per question:** ${formatTime(avgSeconds)}`,
-        inline: false
-      }
-    ],
-    footer: { text: "TMP Phase 4 Examination System" },
-    timestamp: new Date().toISOString()
+  const timingField = {
+    name: "━━━━━━━━━━ Timing ━━━━━━━━━━",
+    value: `**Total time:** ${formatTime(totalSeconds)}\n**Avg time per question:** ${formatTime(avgSeconds)}`,
+    inline: false
   };
 
-  fetch(WORKER_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ embeds: [embed] })
-  })
+  const infoField = {
+    name: "━━━━━━━━━━ Examinee Info ━━━━━━━━━━",
+    value: infoValue,
+    inline: false
+  };
+
+  const allFields = [infoField, ...mainFields, timingField];
+  const chunks = [];
+  for (let i = 0; i < allFields.length; i += 25) {
+    chunks.push(allFields.slice(i, i + 25));
+  }
+
+  const embeds = chunks.map((fields, i) => ({
+    title: i === 0 ? "📋 TMP Phase 4 Examination" : `📋 TMP Phase 4 Examination (cont.)`,
+    color: 0xff69b4,
+    fields,
+    ...(i === chunks.length - 1 ? { footer: { text: "TMP Phase 4 Examination System" }, timestamp: new Date().toISOString() } : {})
+  }));
+
+  const embedBatches = [];
+  for (let i = 0; i < embeds.length; i += 10) {
+    embedBatches.push(embeds.slice(i, i + 10));
+  }
+
+  embedBatches.reduce((promise, batch) =>
+    promise.then(() =>
+      fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ embeds: batch })
+      })
+    ), Promise.resolve()
+  )
   .then(() => console.log("Sent!"))
   .catch(e => console.error("Error:", e));
 }
