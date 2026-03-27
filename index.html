@@ -60,21 +60,17 @@ const allQuestions = [...infoQuestions, ...mainQuestions];
 let current = 0;
 const answers = [];
 
-let questionEl, answerEl, sendBtn, progressEl;
+const questionEl = document.getElementById('question');
+const answerEl = document.getElementById('answer');
+const sendBtn = document.getElementById('sendBtn');
+const progressEl = document.getElementById('progress');
 
-document.addEventListener('DOMContentLoaded', () => {
-  questionEl = document.getElementById('question');
-  answerEl = document.getElementById('answer');
-  sendBtn = document.getElementById('sendBtn');
-  progressEl = document.getElementById('progress');
-
-  sendBtn.addEventListener('click', nextQuestion);
-  answerEl.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
-  });
-
-  loadQuestion();
+sendBtn.addEventListener('click', nextQuestion);
+answerEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
 });
+
+loadQuestion();
 
 function loadQuestion() {
   if (current >= allQuestions.length) {
