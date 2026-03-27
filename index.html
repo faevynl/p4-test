@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timed Application</title>
+<style>
+  body {
+    font-family: "Segoe UI", sans-serif;
+    background-color: #2f3136;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  #container {
+    background-color: #36393f;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 15px 0;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+  }
+  button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #7289da;
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #5b6eae;
+  }
+  #timer {
+    font-weight: bold;
+    margin-top: 10px;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+
+<div id="container">
+  <h2 id="question"></h2>
+  <input type="text" id="answer" placeholder="Type your answer here">
+  <div id="timer"></div>
+  <button onclick="nextQuestion()">Next</button>
+</div>
+
+<script>
+const questions = [
+  "1️⃣ Why do you want to join?",
+  "2️⃣ What are your strengths?",
+  "3️⃣ Describe a past experience that shows your skills.",
+  "4️⃣ How would you handle a difficult situation?",
+  "5️⃣ Any additional information you want to share?"
+];
+
+let current = 0;
+let timeLeft = 30; // seconds per question
+let answers = [];
+let timerInterval;
+
+function loadQuestion() {
+  if (current >= questions.length) {
+    document.getElementById("container").innerHTML = "<h2>Application Complete!</h2><pre>" + JSON.stringify(answers, null, 2) + "</pre>";
+    clearInterval(timerInterval);
+    return;
+  }
+
+  document.getElementById("question").innerText = questions[current];
+  document.getElementById("answer").value = "";
+  timeLeft = 30;
+  document.getElementById("timer").innerText = "Time left: " + timeLeft + "s";
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("timer").innerText = "Time left: " + timeLeft + "s";
+    if (timeLeft <= 0) {
+      answers.push("No answer");
+      current++;
+      loadQuestion();
+    }
+  }, 1000);
+}
+
+function nextQuestion() {
+  const ans = document.getElementById("answer").value.trim() || "No answer";
+  answers.push(ans);
+  current++;
+  loadQuestion();
+}
+
+// Start first question
+loadQuestion();
+</script>
+
+</body>
+</html>
