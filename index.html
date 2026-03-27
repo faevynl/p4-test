@@ -60,10 +60,21 @@ const allQuestions = [...infoQuestions, ...mainQuestions];
 let current = 0;
 const answers = [];
 
-const questionEl = document.getElementById('question');
-const answerEl = document.getElementById('answer');
-const sendBtn = document.getElementById('sendBtn');
-const progressEl = document.getElementById('progress');
+let questionEl, answerEl, sendBtn, progressEl;
+
+document.addEventListener('DOMContentLoaded', () => {
+  questionEl = document.getElementById('question');
+  answerEl = document.getElementById('answer');
+  sendBtn = document.getElementById('sendBtn');
+  progressEl = document.getElementById('progress');
+
+  sendBtn.addEventListener('click', nextQuestion);
+  answerEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
+  });
+
+  loadQuestion();
+});
 
 function loadQuestion() {
   if (current >= allQuestions.length) {
@@ -94,7 +105,7 @@ function sendToDiscord() {
   }));
 
   const mainFields = mainQuestions.map((q, i) => ({
-    name: `Q${i + 1}: ${q.substring(0, 100)}${q.length > 500 ? '...' : ''}`,
+    name: `Q${i + 1}: ${q.substring(0, 100)}${q.length > 100 ? '...' : ''}`,
     value: answers[infoQuestions.length + i] || "No answer",
     inline: false
   }));
@@ -114,13 +125,6 @@ function sendToDiscord() {
   .then(() => console.log("Sent!"))
   .catch(e => console.error("Error:", e));
 }
-
-sendBtn.addEventListener('click', nextQuestion);
-answerEl.addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
-});
-
-loadQuestion();
 </script>
 </body>
 </html>
