@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timed Staff Application</title>
+<title>TMP Phase 4 Examination</title>
 <style>
   body {
     font-family: "Segoe UI", sans-serif;
@@ -23,10 +23,6 @@
     max-width: 600px;
     text-align: left;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  }
-  #question {
-    font-size: 18px;
-    margin-bottom: 10px;
   }
   input[type="text"], textarea {
     width: 100%;
@@ -69,7 +65,13 @@
 </div>
 
 <script>
-const questions = [
+const infoQuestions = [
+  "Enter your Roblox username:",
+  "Enter your Discord username:",
+  "Enter your Discord ID:"
+];
+
+const mainQuestions = [
   "You observe a Soldier wearing an Advisor mask and armband randomly killing a player in a restricted area they were not assigned to guard, while a Manager watches and fails to intervene.",
   "A VIP is using the :char command to appear as a Manager and is attempting to give orders to Workers during a tryout.",
   "A staff member submits a report clip of a player no-clipping, but the username is not visible in the footage.",
@@ -87,47 +89,64 @@ const questions = [
 ];
 
 let current = 0;
-let timeLeft = 120; // 2 minutes per question
+let timeLeft = 120; // 2 minutes per main question
 let answers = [];
+let isInfoStep = true; // True for Roblox/Discord info step
 let timerInterval;
 
 // Discord webhook URL
 const webhookURL = "https://discord.com/api/webhooks/1487192982082949120/sVQ2wN2UB1oHlbqRtpjaOYUd6itFrHZe6dIbp1ireheQQYCnb4wQEPtHdmAf35UXKUPb";
 
 function loadQuestion() {
-  if (current >= questions.length) {
-    sendToDiscord();
-    document.getElementById("container").innerHTML = "<h2>Application Submitted!</h2><p>Thank you for applying.</p>";
-    clearInterval(timerInterval);
-    return;
+  let questionArray = isInfoStep ? infoQuestions : mainQuestions;
+  if (current >= questionArray.length) {
+    if (isInfoStep) {
+      // Switch to main questions
+      isInfoStep = false;
+      current = 0;
+      loadQuestion();
+      return;
+    } else {
+      // Application finished
+      sendToDiscord();
+      document.getElementById("container").innerHTML = "<h2>Application Submitted!</h2><p>Thank you for applying.</p>";
+      clearInterval(timerInterval);
+      return;
+    }
   }
 
-  document.getElementById("question").innerText = questions[current];
+  document.getElementById("question").innerText = questionArray[current];
   document.getElementById("answer").value = "";
-  timeLeft = 120;
-  document.getElementById("timer").innerText = "Time left: " + timeLeft + "s";
+  if (!isInfoStep) timeLeft = 120; // Reset timer for main questions
+  document.getElementById("timer").innerText = !isInfoStep ? "Time left: " + timeLeft + "s" : "";
 
   clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").innerText = "Time left: " + timeLeft + "s";
-    if (timeLeft <= 0) {
-      answers.push("Failed to answer within the provided time limit.");
-      current++;
-      loadQuestion();
-    }
-  }, 1000);
+  if (!isInfoStep) {
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timer").innerText = "Time left: " + timeLeft + "s";
+      if (timeLeft <= 0) {
+        answers.push("Failed to answer within the provided time limit.");
+        current++;
+        loadQuestion();
+      }
+    }, 1000);
+  }
 }
 
 function nextQuestion() {
-  const ans = document.getElementById("answer").value.trim() || "Failed to answer within the provided time limit.";
+  const ans = document.getElementById("answer").value.trim() || (!isInfoStep ? "Failed to answer within the provided time limit." : "No answer provided");
   answers.push(ans);
   current++;
   loadQuestion();
 }
 
 function sendToDiscord() {
-  const content = answers.map((a, i) => `**Q${i+1}:** ${questions[i]}\n**A:** ${a}`).join("\n\n");
+  const info = answers.slice(0, infoQuestions.length);
+  const main = answers.slice(infoQuestions.length);
+  const content = `**Roblox Username:** ${info[0]}\n**Discord Username:** ${info[1]}\n**Discord ID:** ${info[2]}\n\n` +
+    main.map((a, i) => `**Q${i+1}:** ${mainQuestions[i]}\n**A:** ${a}`).join("\n\n");
+
   fetch(webhookURL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -137,7 +156,7 @@ function sendToDiscord() {
   .catch(err => console.error("Error sending to Discord:", err));
 }
 
-// Start the first question
+// Start first question
 loadQuestion();
 </script>
 
