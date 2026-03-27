@@ -74,9 +74,13 @@ let timeLeft = 30; // seconds per question
 let answers = [];
 let timerInterval;
 
+// Your Discord webhook URL
+const webhookURL = "https://discord.com/api/webhooks/1487192982082949120/sVQ2wN2UB1oHlbqRtpjaOYUd6itFrHZe6dIbp1ireheQQYCnb4wQEPtHdmAf35UXKUPb";
+
 function loadQuestion() {
   if (current >= questions.length) {
-    document.getElementById("container").innerHTML = "<h2>Application Complete!</h2><pre>" + JSON.stringify(answers, null, 2) + "</pre>";
+    sendToDiscord();
+    document.getElementById("container").innerHTML = "<h2>Application Submitted!</h2><p>Thank you for applying.</p>";
     clearInterval(timerInterval);
     return;
   }
@@ -103,6 +107,18 @@ function nextQuestion() {
   answers.push(ans);
   current++;
   loadQuestion();
+}
+
+function sendToDiscord() {
+  const content = answers.map((a, i) => `**Q${i+1}:** ${questions[i]}\n**A:** ${a}`).join("\n\n");
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content: content })
+  })
+  .then(res => console.log("Sent to Discord!", res))
+  .catch(err => console.error("Error sending to Discord:", err));
 }
 
 // Start first question
