@@ -259,12 +259,13 @@ function sendToDiscord() {
     chunks.push(allFields.slice(i, i + 25));
   }
 
-  const embeds = chunks.map((fields, i) => ({
-    title: i === 0 ? "📋 TMP Phase 4 Examination" : `📋 TMP Phase 4 Examination (cont.)`,
-    color: 0xff69b4,
-    fields,
-    ...(i === chunks.length - 1 ? { footer: { text: "TMP Phase 4 Examination System" }, timestamp: new Date().toISOString() } : {})
-  }));
+const embeds = chunks.map((fields, i) => ({
+  title: i === 0 ? "📋 TMP Phase 4 Examination" : `📋 TMP Phase 4 Examination (cont.)`,
+  color: 0xff69b4,
+  thumbnail: i === 0 ? { url: "https://files.catbox.moe/yu8arb.webp" } : undefined,
+  fields,
+  ...(i === chunks.length - 1 ? { footer: { text: "TMP Phase 4 Examination System" }, timestamp: new Date().toISOString() } : {})
+}));
 
   const embedBatches = [];
   for (let i = 0; i < embeds.length; i += 10) {
