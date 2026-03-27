@@ -5,9 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TMP Phase 4 Examination</title>
 <style>
-  body { font-family: "Segoe UI", sans-serif; background-color: #1e1e1e; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  body { font-family: "Segoe UI", sans-serif; background-color: #1e1e1e; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
   #app { width: 100%; max-width: 500px; }
-  .question-card { background-color: #000; border: 2px solid #ff69b4; border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 20px; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; text-align: center; }
+  .notice-card { background-color: #1a1a2e; border: 2px solid #ff69b4; border-radius: 16px; padding: 16px 20px; color: #ccc; font-size: 13px; text-align: center; margin-bottom: 14px; line-height: 1.5; }
+  .notice-card strong { color: #ff69b4; }
+  .progress { color: #aaa; font-size: 13px; text-align: right; margin-bottom: 8px; }
+  .question-card { background-color: #000; border: 2px solid #ff69b4; border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 16px; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; text-align: center; line-height: 1.5; }
   #input-area { display: flex; gap: 10px; }
   #answer { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #ff69b4; background-color: #000; color: #fff; font-size: 16px; }
   #sendBtn { padding: 12px 20px; border-radius: 12px; border: 2px solid #ff69b4; background-color: #000; color: #fff; cursor: pointer; font-size: 16px; }
@@ -15,20 +18,21 @@
 </style>
 </head>
 <body>
-
 <div id="app">
+  <div class="notice-card">
+    <strong> Notice</strong><br>
+    Your answers will be submitted to TMP staff via Discord for review. By completing this form, you consent to your responses being stored and reviewed by TMP staff.
+  </div>
+  <div class="progress" id="progress"></div>
   <div id="question" class="question-card">Loading...</div>
   <div id="input-area">
     <input type="text" id="answer" placeholder="Type your answer here">
     <button id="sendBtn">Send</button>
   </div>
 </div>
-
 <script>
-// === Discord webhook URL ===
-const webhookURL = "https://discord.com/api/webhooks/1487192982082949120/sVQ2wN2UB1oHlbqRtpjaOYUd6itFrHZe6dIbp1ireheQQYCnb4wQEPtHdmAf35UXKUPb";
+const WORKER_URL = "https://server.yyourmom96.workers.dev";
 
-// === Questions ===
 const infoQuestions = [
   "Enter your Roblox username:",
   "Enter your Discord username:",
@@ -52,28 +56,29 @@ const mainQuestions = [
   "Explain the first three steps of the I STAFF method. What is the impact of being placed on Zero Tolerance?"
 ];
 
-// === State ===
+const allQuestions = [...infoQuestions, ...mainQuestions];
 let current = 0;
 const answers = [];
 
 const questionEl = document.getElementById('question');
 const answerEl = document.getElementById('answer');
 const sendBtn = document.getElementById('sendBtn');
+const progressEl = document.getElementById('progress');
 
-// === Load question ===
 function loadQuestion() {
-  const allQuestions = [...infoQuestions, ...mainQuestions];
-  if(current >= allQuestions.length) {
-    questionEl.textContent = "Application Submitted! Thank you.";
+  if (current >= allQuestions.length) {
+    questionEl.textContent = "✅ Application Submitted! Thank you. Your answers have been sent to the TMP moderation team.";
     document.getElementById('input-area').style.display = 'none';
+    progressEl.style.display = 'none';
     sendToDiscord();
     return;
   }
+  progressEl.textContent = `Question ${current + 1} of ${allQuestions.length}`;
   questionEl.textContent = allQuestions[current];
   answerEl.value = '';
+  answerEl.focus();
 }
 
-// === Next question ===
 function nextQuestion() {
   const ans = answerEl.value.trim() || "No answer";
   answers.push(ans);
@@ -82,19 +87,17 @@ function nextQuestion() {
 }
 
 function sendToDiscord() {
-  // Combine all answers into one message
-  const content = answers.map((a, i) => `**${questions[i]}**\nAnswer: ${a}`).join("\n\n");
+  const infoFields = infoQuestions.map((q, i) => ({
+    name: q,
+    value: answers[i] || "No answer",
+    inline: false
+  }));
 
-  fetch("https://discord.com/api/webhooks/1487192982082949120/sVQ2wN2UB1oHlbqRtpjaOYUd6itFrHZe6dIbp1ireheQQYCnb4wQEPtHdmAf35UXKUPb", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ content: content })
-  })
-  .then(res => console.log("Sent to Discord!", res))
-  .catch(err => console.error("Error sending to Discord:", err));
-}
+  const mainFields = mainQuestions.map((q, i) => ({
+    name: `Q${i + 1}: ${q.substring(0, 100)}${q.length > 500 ? '...' : ''}`,
+    value: answers[infoQuestions.length + i] || "No answer",
+    inline: false
+  }));
 
   const embed = {
     title: "TMP Phase 4 Examination Submission",
@@ -103,24 +106,21 @@ function sendToDiscord() {
     timestamp: new Date().toISOString()
   };
 
-  fetch(webhookURL, {
+  fetch(WORKER_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ embeds: [embed] })
   })
-  .then(() => console.log("Sent to Discord!"))
-  .catch(e => console.error("Error sending to Discord:", e));
+  .then(() => console.log("Sent!"))
+  .catch(e => console.error("Error:", e));
 }
 
-// === Event listeners ===
 sendBtn.addEventListener('click', nextQuestion);
 answerEl.addEventListener('keydown', e => {
-  if(e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
+  if (e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
 });
 
-// Start
 loadQuestion();
 </script>
-
 </body>
 </html>
