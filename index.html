@@ -387,23 +387,18 @@ function formatTime(seconds) {
 }
 
 function sendToDiscord() {
-  const totalSeconds = Math.round((Date.now() - appStartTime) / 1000);
-  const avgSeconds = Math.round(questionTimes.reduce((a, b) => a + b, 0) / questionTimes.length);
-  const robloxUser = answers[0] || "Unknown";
-
-  let content = `**👤 Examinee Information**\n`;
+  const robloxUser = answers[0] || "Unknown User";
+  
+  let content = `👤 **Examinee Info**\n`;
   infoQuestions.forEach((q, i) => {
-    content += `**${q}** ${answers[i] || "No answer"}\n`;
+    content += `**${q}** ${answers[i]}\n\n`;
   });
 
-  content += `\n**📝 Main Questions**\n`;
+  content += `📝 **Responses**\n`;
   mainQuestions.forEach((q, i) => {
-    const answer = answers[infoQuestions.length + i] || "No answer";
-    content += `**Q${i + 1}:** ${q}\n**A:** ${answer}\n\n`;
+    const answer = answers[infoQuestions.length + i] || "TIMEOUT/NO ANSWER";
+    content += `**Q${i+1}:** ${q}\n**A:** ${answer}\n\n`;
   });
-
-  content += `\n**⏱ Timing**\n`;
-  content += `Total time: ${formatTime(totalSeconds)} | Avg per question: ${formatTime(avgSeconds)}`;
 
   const payload = {
     username: robloxUser,
@@ -416,10 +411,9 @@ function sendToDiscord() {
     body: JSON.stringify(payload)
   })
   .then(res => {
-    if (res.ok) console.log("Examination submitted successfully!");
-    else console.error("Server error during submission.");
+    if (res.ok) console.log("Sent");
   })
-  .catch(e => console.error("Connection Error:", e));
+  .catch(err => console.error(err));
 }
 
 loadQuestion();
