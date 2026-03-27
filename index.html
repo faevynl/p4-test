@@ -3,111 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timed Application</title>
+<title>TMP Phase 4 Examination</title>
 <style>
   body {
     font-family: "Segoe UI", sans-serif;
-    background-color: #2f3136;
-    color: #fff;
+    background-color: #36393f;
     display: flex;
-    flex-direction: column;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     min-height: 100vh;
+    margin: 0;
   }
   #container {
-    background-color: #36393f;
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    text-align: center;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  }
-  input[type="text"] {
     width: 100%;
-    padding: 10px;
-    margin: 15px 0;
-    border-radius: 6px;
-    border: none;
-    font-size: 16px;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px;
+    background-color: #2f3136;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.5);
   }
-  button {
-    padding: 10px 20px;
-    border: none;
+  .bubble {
+    max-width: 90%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    position: relative;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+  .question {
     background-color: #7289da;
     color: white;
-    font-size: 16px;
-    border-radius: 6px;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .answer {
+    background-color: #4f545c;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  #input-area {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  textarea {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: none;
+    resize: none;
+    font-size: 14px;
+  }
+  button {
+    background-color: #7289da;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 10px 16px;
     cursor: pointer;
   }
   button:hover {
     background-color: #5b6eae;
   }
   #timer {
-    font-weight: bold;
-    margin-top: 10px;
-    font-size: 18px;
+    font-size: 12px;
+    color: #ff5555;
+    margin-top: 2px;
+    text-align: right;
   }
 </style>
 </head>
 <body>
-
-<div id="container">
-  <h2 id="question"></h2>
-  <input type="text" id="answer" placeholder="Type your answer here">
-  <div id="timer"></div>
-  <button onclick="nextQuestion()">Next</button>
+<div id="container"></div>
+<div id="input-area">
+  <textarea id="answer" rows="2" placeholder="Type your answer here"></textarea>
+  <button onclick="nextQuestion()">Send</button>
 </div>
+<div id="timer"></div>
 
 <script>
-const questions = [
-  "1️⃣ Why do you want to join?",
-  "2️⃣ What are your strengths?",
-  "3️⃣ Describe a past experience that shows your skills.",
-  "4️⃣ How would you handle a difficult situation?",
-  "5️⃣ Any additional information you want to share?"
+const infoQuestions = [
+  "Enter your Roblox username:",
+  "Enter your Discord username:",
+  "Enter your Discord ID:"
+];
+
+const mainQuestions = [
+  "You observe a Soldier wearing an Advisor mask and armband randomly killing a player in a restricted area they were not assigned to guard, while a Manager watches and fails to intervene.",
+  "A VIP is using the :char command to appear as a Manager and is attempting to give orders to Workers during a tryout.",
+  "A staff member submits a report clip of a player no-clipping, but the username is not visible in the footage.",
+  "Describe the 'Authority Inheritance' protocol for a Sentry guarding a Supreme Rank. If a Sentry is guarding the Frontman, what authority do they possess over other staff members, and when is it valid?",
+  "In Round 2 of a Soldier Evaluation (Outscore 9), an attendee finishes with 1250 Damage, a 1:1 KDR, and 450 heals. Do they pass?",
+  "Write the exact sequence of commands to protect your tryoutees, identify flying exploiters, and the specific ban format for a user named 'RaidLeader123'.",
+  "Identify the rank requirements for a Section Leader, a Platoon CO, and Company Leadership.",
+  "During a Merit Department promotion wave, what are the specific restrictions regarding the discussion of Managers on Trial? Additionally, what is the mandatory evidence requirement for any individual being considered for a promotion to Supervisor or higher?",
+  "Type a batch command string that gives you a sword, waits 5 seconds, announces 'Event Starting' to the server, and teleports all players on the 'Tryoutee' team to you.",
+  "Contrast the primary roles of the Community Department and the Justice Department.",
+  "Does High Command have authority over Sentry or Rangers? How do you report an infraction by a member of these divisions, and how do you identify 'stolen valor' using their mask ranks?",
+  "Explain the specific regulations regarding VIP Vitality commands (e.g., :god) when a VIP intends to enter combat. What are the two conditions they must satisfy before engaging an armed opponent, and can they leave the VIP room while godded?",
+  "Contrast the first-offense punishment for Corruption versus Insubordination for a Soldier. Who has the final authority on permanent blacklists?",
+  "Explain the first three steps of the I STAFF method. What is the impact of being placed on Zero Tolerance?"
 ];
 
 let current = 0;
-let timeLeft = 30; // seconds per question
+let timeLeft = 120;
 let answers = [];
+let isInfoStep = true;
 let timerInterval;
+const webhookURL = "https://discord.com/api/webhooks/1487192982082949120/sVQ2wN2UB1oHlbqRtpjaOYUd6itFrHZe6dIbp1ireheQQYCnb4wQEPtHdmAf35UXKUPb";
+const container = document.getElementById("container");
+const timerEl = document.getElementById("timer");
+const answerEl = document.getElementById("answer");
+
+function showBubble(text, type="question") {
+  const div = document.createElement("div");
+  div.className = `bubble ${type}`;
+  div.innerText = text;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
 
 function loadQuestion() {
-  if (current >= questions.length) {
-    document.getElementById("container").innerHTML = "<h2>Application Complete!</h2><pre>" + JSON.stringify(answers, null, 2) + "</pre>";
-    clearInterval(timerInterval);
-    return;
-  }
-
-  document.getElementById("question").innerText = questions[current];
-  document.getElementById("answer").value = "";
-  timeLeft = 30;
-  document.getElementById("timer").innerText = "Time left: " + timeLeft + "s";
-
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById("timer").innerText = "Time left: " + timeLeft + "s";
-    if (timeLeft <= 0) {
-      answers.push("No answer");
-      current++;
+  let questionArray = isInfoStep ? infoQuestions : mainQuestions;
+  if (current >= questionArray.length) {
+    if (isInfoStep) {
+      isInfoStep = false;
+      current = 0;
       loadQuestion();
+      return;
+    } else {
+      sendToDiscord();
+      showBubble("Application Submitted! Thank you.", "question");
+      document.getElementById("input-area").style.display = "none";
+      clearInterval(timerInterval);
+      timerEl.innerText = "";
+      return;
     }
-  }, 1000);
+  }
+  showBubble(questionArray[current], "question");
+  answerEl.value = "";
+  if (!isInfoStep) {
+    timeLeft = 120;
+    timerEl.innerText = `Time left: ${timeLeft}s`;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.innerText = `Time left: ${timeLeft}s`;
+      if (timeLeft <= 0) {
+        answers.push("Failed to answer within the provided time limit.");
+        current++;
+        loadQuestion();
+      }
+    }, 1000);
+  } else {
+    timerEl.innerText = "";
+  }
 }
 
 function nextQuestion() {
-  const ans = document.getElementById("answer").value.trim() || "No answer";
+  const ans = answerEl.value.trim() || (!isInfoStep ? "Failed to answer within the provided time limit." : "No answer provided");
   answers.push(ans);
+  showBubble(ans, "answer");
   current++;
   loadQuestion();
 }
 
-// Start first question
+function sendToDiscord() {
+  const info = answers.slice(0, infoQuestions.length);
+  const main = answers.slice(infoQuestions.length);
+  const content = `**Roblox Username:** ${info[0]}\n**Discord Username:** ${info[1]}\n**Discord ID:** ${info[2]}\n\n` +
+    main.map((a,i)=>`**Q${i+1}:** ${mainQuestions[i]}\n**A:** ${a}`).join("\n\n");
+  fetch(webhookURL, {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({content:content})
+  }).then(r=>console.log("Sent")).catch(e=>console.error(e));
+}
+
+// Start
 loadQuestion();
 </script>
-
 </body>
 </html>
