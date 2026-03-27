@@ -390,67 +390,63 @@ function sendToDiscord() {
   const totalSeconds = Math.round((Date.now() - appStartTime) / 1000);
   const avgSeconds = Math.round(questionTimes.reduce((a, b) => a + b, 0) / questionTimes.length);
 
-  const infoValue = infoQuestions.map((q, i) => `**${q}** ${answers[i] || "No answer"}`).join("\n");
+  const infoValue = infoQuestions
+    .map((q, i) => `**${q}** 📝 ${answers[i] || "No answer"}`)
+    .join("\n");
 
   const mainFields = mainQuestions.map((q, i) => {
     const answer = answers[infoQuestions.length + i] || "No answer";
-    const value = `**Q:** ${q}\n**A:** ${answer}`;
     return {
-      name: `▸ Question ${i + 1}`,
-      value: value.length > 1024 ? value.substring(0, 1021) + "..." : value,
+      name: `<:arrow:1457800456028819586> Q${i + 1}`,
+      value: `**Question:** **Answer:** ${answer},
       inline: false
     };
   });
 
   const timingField = {
-    name: "⏱ Timing",
-    value: `\`\`\`\nTotal time          ${formatTime(totalSeconds)}\nAvg per question    ${formatTime(avgSeconds)}\n\`\`\``,
+    name: "⏱ Timing Summary",
+    value: `\`\`\`
+Total time          ${formatTime(totalSeconds)}
+Average per question ${formatTime(avgSeconds)}
+\`\`\``,
     inline: false
   };
 
-  const infoField = {
-    name: "👤 Examinee Info",
-    value: infoValue,
-    inline: false
-  };
-
-  const allFields = [infoField, ...mainFields, timingField];
-  const chunks = [];
-  for (let i = 0; i < allFields.length; i += 25) {
-    chunks.push(allFields.slice(i, i + 25));
-  }
-
-  const embeds = chunks.map((fields, i) => {
-    const embed = {
-      color: 0xff69b4,
-      fields
-    };
-    if (i === 0) {
-      embed.author = {
-        name: "TMP · Phase 4 Written Assessment",
-        icon_url: LOGO_URL
-      };
-      embed.title = "📋 Examination Submission";
-      embed.thumbnail = { url: LOGO_URL };
-    } else {
-      embed.title = "📋 Examination Submission (cont.)";
+  const embeds = [
+    {
+      color: 0xff69b4, 
+      author: { name: "TMP · Phase 4 Written Assessment", icon_url: LOGO_URL },
+      title: "📋 Examination Submission",
+      thumbnail: { url: LOGO_URL },
+      fields: [{ name: "👤 Examinee Info", value: infoValue, inline: false }, ...mainFields.slice(0, 5)],
+      footer: { text: "TMP Phase 4 Examination System", icon_url: LOGO_URL },
+      timestamp: new Date().toISOString()
+    },
+    ...chunkArray(mainFields.slice(5, 15), 5).map((fieldsChunk, idx) => ({
+      color: 0x00dcff, 
+      title: `📋 Examination Submission (cont. ${idx + 1})`,
+      fields: fieldsChunk,
+      footer: { text: "TMP Phase 4 Examination System", icon_url: LOGO_URL },
+      timestamp: new Date().toISOString()
+    })),
+    ...chunkArray(mainFields.slice(15), 5).map((fieldsChunk, idx) => ({
+      color: 0xa020f0, 
+      title: `📋 Examination Submission (cont. final)`,
+      fields: fieldsChunk,
+      footer: { text: "TMP Phase 4 Examination System", icon_url: LOGO_URL },
+      timestamp: new Date().toISOString()
+    })),
+    {
+      color: 0x00dcff, 
+      title: "⏱ Timing Summary",
+      fields: [timingField],
+      footer: { text: "TMP Phase 4 Examination System", icon_url: LOGO_URL },
+      timestamp: new Date().toISOString()
     }
-    if (i === chunks.length - 1) {
-      embed.footer = {
-        text: "TMP Phase 4 Examination System",
-        icon_url: LOGO_URL
-      };
-      embed.timestamp = new Date().toISOString();
-    }
-    return embed;
-  });
+  ];
 
-  const embedBatches = [];
-  for (let i = 0; i < embeds.length; i += 10) {
-    embedBatches.push(embeds.slice(i, i + 10));
-  }
-
-  embedBatches.reduce((promise, batch) =>
+  const batchChunks = chunkArray(embeds, 10);
+  batchChunks.reduce((promise, batch) =>
     promise.then(() =>
       fetch(WORKER_URL, {
         method: "POST",
@@ -461,6 +457,14 @@ function sendToDiscord() {
   )
   .then(() => console.log("Sent!"))
   .catch(e => console.error("Error:", e));
+}
+
+function chunkArray(array, chunkSize) {
+  const chunks = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    chunks.push(array.slice(i, i + chunkSize));
+  }
+  return chunks;
 }
 
 loadQuestion();
