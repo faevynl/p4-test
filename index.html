@@ -5,65 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TMP Phase 4 Examination</title>
 <style>
-  body {
-    font-family: "Segoe UI", sans-serif;
-    background-color: #1e1e1e;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-
-  #app {
-    width: 100%;
-    max-width: 500px;
-  }
-
-  .question-card {
-    background-color: #000;
-    border: 2px solid #ff69b4;
-    border-radius: 16px;
-    padding: 20px;
-    color: #fff;
-    margin-bottom: 20px;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    text-align: center;
-  }
-
-  #input-area {
-    display: flex;
-    gap: 10px;
-  }
-
-  #answer {
-    flex: 1;
-    padding: 12px;
-    border-radius: 12px;
-    border: 2px solid #ff69b4;
-    background-color: #000;
-    color: #fff;
-    font-size: 16px;
-  }
-
-  #sendBtn {
-    padding: 12px 20px;
-    border-radius: 12px;
-    border: 2px solid #ff69b4;
-    background-color: #000;
-    color: #fff;
-    cursor: pointer;
-    font-size: 16px;
-  }
-
-  #sendBtn:hover {
-    background-color: #ff69b4;
-    color: #000;
-  }
+  body { font-family: "Segoe UI", sans-serif; background-color: #1e1e1e; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+  #app { width: 100%; max-width: 500px; }
+  .question-card { background-color: #000; border: 2px solid #ff69b4; border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 20px; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; text-align: center; }
+  #input-area { display: flex; gap: 10px; }
+  #answer { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #ff69b4; background-color: #000; color: #fff; font-size: 16px; }
+  #sendBtn { padding: 12px 20px; border-radius: 12px; border: 2px solid #ff69b4; background-color: #000; color: #fff; cursor: pointer; font-size: 16px; }
+  #sendBtn:hover { background-color: #ff69b4; color: #000; }
 </style>
 </head>
 <body>
@@ -77,13 +25,34 @@
 </div>
 
 <script>
-const questions = [
+// === Discord webhook URL ===
+const webhookURL = "https://discord.com/api/webhooks/1487192982082949120/sVQ2wN2UB1oHlbqRtpjaOYUd6itFrHZe6dIbp1ireheQQYCnb4wQEPtHdmAf35UXKUPb";
+
+// === Questions ===
+const infoQuestions = [
   "Enter your Roblox username:",
   "Enter your Discord username:",
-  "Enter your Discord ID:",
-  "Why do you want to join?"
+  "Enter your Discord ID:"
 ];
 
+const mainQuestions = [
+  "You observe a Soldier wearing an Advisor mask and armband, randomly killing a player in a restricted area they were not assigned to guard, while a Manager watches and fails to intervene. What do you do?",
+  "A VIP is using the :char command to appear as a Manager and is attempting to give orders to Workers during a tryout. What do you do?",
+  "A staff member submits a report clip of a player no-clipping, but the username is not visible in the footage. What do you do?",
+  "Describe the 'Authority Inheritance' protocol for a Sentry guarding a Supreme Rank. If a Sentry is guarding the Frontman, what specific authority do they possess over other staff members, and when is this authority valid?",
+  "In Round 2 of a Soldier Evaluation (Outscore 9), an attendee finishes with 1250 Damage, a 1:1 KDR, and 450 heals. Do they pass? What do you do?",
+  "Write the exact sequence of commands to protect your tryoutees, identify flying exploiters, and the specific ban format for a user named 'RaidLeader123'.",
+  "Identify the rank requirements for a Section Leader, a Platoon CO, and Company Leadership.",
+  "During a Merit Department promotion wave, what are the specific restrictions regarding the discussion of Managers on Trial? Additionally, what is the mandatory evidence requirement for any individual being considered for a promotion to Supervisor or higher?",
+  "Type a batch command string that gives you a sword, waits 5 seconds, announces 'Event Starting' to the server, and teleports all players on the 'Tryoutee' team to you.",
+  "Contrast the primary roles of the Community Department and the Justice Department.",
+  "Does High Command have authority over Sentry or Rangers? How do you report an infraction by a member of these divisions, and how do you identify 'stolen valor' using their mask ranks?",
+  "Explain the specific regulations regarding VIP Vitality commands (e.g., :god) when a VIP intends to enter combat. What are the two conditions they must satisfy before engaging an armed opponent, and can they leave the VIP room while godded?",
+  "Contrast the first-offense punishment for Corruption versus Insubordination for a Soldier. Who has the final authority on permanent blacklists?",
+  "Explain the first three steps of the I STAFF method. What is the impact of being placed on Zero Tolerance?"
+];
+
+// === State ===
 let current = 0;
 const answers = [];
 
@@ -91,41 +60,63 @@ const questionEl = document.getElementById('question');
 const answerEl = document.getElementById('answer');
 const sendBtn = document.getElementById('sendBtn');
 
+// === Load question ===
 function loadQuestion() {
-  if(current >= questions.length) {
+  const allQuestions = [...infoQuestions, ...mainQuestions];
+  if(current >= allQuestions.length) {
     questionEl.textContent = "Application Submitted! Thank you.";
     document.getElementById('input-area').style.display = 'none';
-    sendToServer();
+    sendToDiscord();
     return;
   }
-  questionEl.textContent = questions[current];
+  questionEl.textContent = allQuestions[current];
   answerEl.value = '';
 }
 
+// === Next question ===
 function nextQuestion() {
-  const ans = answerEl.value.trim() || "No answer provided";
-  answers.push({ question: questions[current], answer: ans });
+  const ans = answerEl.value.trim() || "No answer";
+  answers.push(ans);
   current++;
   loadQuestion();
 }
 
-function sendToServer() {
-  fetch('http://localhost:3000/submit', { // your server URL
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ answers })
+// === Send to Discord webhook ===
+function sendToDiscord() {
+  const info = answers.slice(0, infoQuestions.length);
+  const main = answers.slice(infoQuestions.length);
+
+  const infoFields = [
+    { name: "Roblox Username", value: info[0], inline: true },
+    { name: "Discord Username", value: info[1], inline: true },
+    { name: "Discord ID", value: info[2], inline: true }
+  ];
+
+  const mainFields = main.map((a, i) => ({
+    name: `Q${i+1}: ${mainQuestions[i]}`,
+    value: a
+  }));
+
+  const embed = {
+    title: "TMP Phase 4 Examination Submission",
+    color: 0xff69b4,
+    fields: [...infoFields, ...mainFields],
+    timestamp: new Date().toISOString()
+  };
+
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ embeds: [embed] })
   })
-  .then(res => res.json())
-  .then(data => console.log("Server response:", data))
-  .catch(err => console.error("Error sending to server:", err));
+  .then(() => console.log("Sent to Discord!"))
+  .catch(e => console.error("Error sending to Discord:", e));
 }
 
+// === Event listeners ===
 sendBtn.addEventListener('click', nextQuestion);
-answerEl.addEventListener('keydown', (e) => {
-  if(e.key === 'Enter') {
-    e.preventDefault();
-    nextQuestion();
-  }
+answerEl.addEventListener('keydown', e => {
+  if(e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
 });
 
 // Start
