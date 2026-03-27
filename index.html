@@ -9,7 +9,9 @@
   #app { width: 100%; max-width: 500px; }
   .notice-card { background-color: #1a1a2e; border: 2px solid #ff69b4; border-radius: 16px; padding: 16px 20px; color: #ccc; font-size: 13px; text-align: center; margin-bottom: 14px; line-height: 1.5; }
   .notice-card strong { color: #ff69b4; }
-  .progress { color: #aaa; font-size: 13px; text-align: right; margin-bottom: 8px; }
+  .progress { color: #aaa; font-size: 13px; text-align: right; margin-bottom: 4px; }
+  .timer { font-size: 13px; text-align: right; margin-bottom: 8px; color: #aaa; }
+  .timer.warning { color: #ff4444; font-weight: bold; }
   .question-card { background-color: #000; border: 2px solid #ff69b4; border-radius: 16px; padding: 20px; color: #fff; margin-bottom: 16px; min-height: 80px; display: flex; align-items: center; justify-content: center; font-size: 16px; text-align: center; line-height: 1.5; }
   #input-area { display: flex; gap: 10px; }
   #answer { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid #ff69b4; background-color: #000; color: #fff; font-size: 16px; }
@@ -20,10 +22,11 @@
 <body>
 <div id="app">
   <div class="notice-card">
-    <strong> Notice</strong><br>
+    <strong>📋 Notice</strong><br>
     Your answers will be submitted to TMP staff via Discord for review. By completing this form, you consent to your responses being stored and reviewed by TMP staff.
   </div>
   <div class="progress" id="progress"></div>
+  <div class="timer" id="timer"></div>
   <div id="question" class="question-card">Loading...</div>
   <div id="input-area">
     <input type="text" id="answer" placeholder="Type your answer here">
@@ -32,6 +35,7 @@
 </div>
 <script>
 const WORKER_URL = "https://server.yyourmom96.workers.dev";
+const TIME_LIMIT = 120; // seconds
 
 const infoQuestions = [
   "Enter your Roblox username:",
@@ -59,22 +63,46 @@ const mainQuestions = [
 const allQuestions = [...infoQuestions, ...mainQuestions];
 let current = 0;
 const answers = [];
+let timerInterval = null;
+let secondsLeft = TIME_LIMIT;
 
 const questionEl = document.getElementById('question');
 const answerEl = document.getElementById('answer');
 const sendBtn = document.getElementById('sendBtn');
 const progressEl = document.getElementById('progress');
+const timerEl = document.getElementById('timer');
 
-sendBtn.addEventListener('click', nextQuestion);
+sendBtn.addEventListener('click', () => nextQuestion(false));
 answerEl.addEventListener('keydown', e => {
-  if (e.key === 'Enter') { e.preventDefault(); nextQuestion(); }
+  if (e.key === 'Enter') { e.preventDefault(); nextQuestion(false); }
 });
 
-loadQuestion();
+function startTimer() {
+  clearInterval(timerInterval);
+  secondsLeft = TIME_LIMIT;
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    updateTimerDisplay();
+    if (secondsLeft <= 0) {
+      clearInterval(timerInterval);
+      nextQuestion(true);
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  timerEl.textContent = `⏱ Time remaining: ${mins}:${secs.toString().padStart(2, '0')}`;
+  timerEl.className = 'timer' + (secondsLeft <= 30 ? ' warning' : '');
+}
 
 function loadQuestion() {
   if (current >= allQuestions.length) {
-    questionEl.textContent = "✅ Application Submitted! Thank you. Your answers have been sent to the TMP moderation team.";
+    clearInterval(timerInterval);
+    timerEl.style.display = 'none';
+    questionEl.textContent = "✅ Examination Submitted! Thank you. Your answers have been sent to TMP staff.";
     document.getElementById('input-area').style.display = 'none';
     progressEl.style.display = 'none';
     sendToDiscord();
@@ -84,10 +112,13 @@ function loadQuestion() {
   questionEl.textContent = allQuestions[current];
   answerEl.value = '';
   answerEl.focus();
+  startTimer();
 }
 
-function nextQuestion() {
-  const ans = answerEl.value.trim() || "No answer";
+function nextQuestion(timedOut) {
+  const ans = timedOut || answerEl.value.trim() === ''
+    ? "Failure to provide an answer within the time limit."
+    : answerEl.value.trim();
   answers.push(ans);
   current++;
   loadQuestion();
@@ -121,6 +152,8 @@ function sendToDiscord() {
   .then(() => console.log("Sent!"))
   .catch(e => console.error("Error:", e));
 }
+
+loadQuestion();
 </script>
 </body>
 </html>
