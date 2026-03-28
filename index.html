@@ -29,7 +29,7 @@
   .review-a { font-size: 13px; color: #fff; margin-top: 4px; }
   #input-area { display: none; flex-direction: column; gap: 10px; }
   #answer { width: 100%; min-height: 120px; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 105, 180, 0.3); background: #0d0d0d; color: #fff; outline: none; resize: none; -webkit-user-select: text; user-select: text; }
-  .manual-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ff69b4; background: #111; color: #fff; text-align: center; }
+  .manual-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ff69b4; background: #111; color: #fff; text-align: center; font-family: 'Inter', sans-serif; }
   .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(0, 220, 255, 0.5); background: rgba(0, 220, 255, 0.1); color: #00dcff; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: 0.2s; }
   .action-btn:hover { background: #00dcff; color: #000; }
   .credit-text { font-family: 'Rajdhani', sans-serif; font-size: 10px; color: rgba(255, 255, 255, 0.2); text-align: center; margin-top: 15px; letter-spacing: 2px; }
@@ -61,7 +61,6 @@
   </div>
   <div id="credit" class="credit-text">CREATED BY FAEVYNL</div>
 </div>
-
 <script>
 const WORKER_URL = "https://server.yyourmom96.workers.dev";
 const D_CLIENT = '1487244125488152589';
@@ -78,25 +77,23 @@ window.onload = () => {
     const hashParams = new URLSearchParams(window.location.hash.slice(1));
     const dToken = hashParams.get('access_token');
     if (dToken) {
-        document.getElementById('question').innerHTML = `<div class="glow-text">Checking Sync...</div>`;
+        document.getElementById('question').innerHTML = `<div class="glow-text">Verifying Roblox Profile...</div>`;
         fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${dToken}` } })
         .then(res => res.json()).then(user => {
             window.dUser = user;
             return fetch(WORKER_URL, { method: "POST", body: JSON.stringify({ type: "CLANLABS_VERIFY", discordId: user.id }) });
         })
         .then(res => res.json()).then(data => {
-            if (data.error === "CL_FAIL") {
-                document.getElementById('notice').innerHTML = `<span style="color:#ff69b4;">Sync Failed</span><br>Enter your Roblox Username manually.`;
-                document.getElementById('question').innerHTML = `
-                    <input type="text" id="manualName" class="manual-input" placeholder="Roblox Username">
-                    <button class="action-btn" onclick="startManual()">Verify Manually</button>`;
+            if (data.error === "CL_FAIL" || data.error === "NOT_IN_GROUP") {
+                document.getElementById('notice').innerHTML = `<span style="color:#ff69b4;">Roblox Sync Unavailable</span><br>Manually enter your Roblox Username below.`;
+                document.getElementById('question').innerHTML = `<input type="text" id="manualName" class="manual-input" placeholder="Roblox Username"><button class="action-btn" onclick="startManual()">Begin Manually</button>`;
             } else if (data.error) {
-                document.getElementById('notice').innerHTML = `<span style="color:red;">Error</span><br>${data.error}`;
-                document.getElementById('question').innerHTML = `<button class="action-btn" onclick="loginDiscord()">Retry</button>`;
+                document.getElementById('notice').innerHTML = `<span style="color:red;">Eligibility Error</span><br>${data.error}`;
+                document.getElementById('question').innerHTML = `<button class="action-btn" onclick="loginDiscord()">Try Again</button>`;
             } else {
                 window.rUser = data.username; window.userRank = data.rank;
-                document.getElementById('notice').innerHTML = `<span class="glow-text">Confirmed</span><br>User: ${window.rUser} (Rank ${window.userRank})`;
-                document.getElementById('question').innerHTML = `<button class="action-btn" onclick="startExam()">Start Examination</button>`;
+                document.getElementById('notice').innerHTML = `<span class="glow-text">Roblox Verified</span><br>${window.rUser} (Rank ${window.userRank})`;
+                document.getElementById('question').innerHTML = `<button class="action-btn" onclick="startExam()">Start Written Exam</button>`;
             }
         });
     }
@@ -104,7 +101,7 @@ window.onload = () => {
 
 async function startManual() {
     const val = document.getElementById('manualName').value.trim();
-    if (val.length < 3) return alert("Enter valid name.");
+    if (val.length < 3) return alert("Please enter your Roblox username.");
     window.rUser = val; window.userRank = "UNVERIFIED";
     startExam();
 }
@@ -123,7 +120,7 @@ function loadQuestion() {
     clearInterval(timerInterval);
     if (current >= mainQuestions.length) { showReview(); return; }
     document.getElementById('progressBar').style.width = (current / mainQuestions.length) * 100 + '%';
-    document.getElementById('progress').innerText = `Question ${current + 1} / ${mainQuestions.length}`;
+    document.getElementById('progress').innerText = `Question ${current + 1} of ${mainQuestions.length}`;
     qContainer.innerText = mainQuestions[current];
     document.getElementById('answer').value = answers[current] || '';
     document.getElementById('answer').focus();
@@ -138,32 +135,32 @@ function startTimer() {
         secondsLeft--;
         const mins = Math.floor(secondsLeft / 60); const secs = secondsLeft % 60;
         document.getElementById('timer').innerText = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
-        if (secondsLeft <= 0) { answers[current] = document.getElementById('answer').value.trim() || "[EXPIRED]"; current++; loadQuestion(); }
+        if (secondsLeft <= 0) { answers[current] = document.getElementById('answer').value.trim() || "[TIME LIMIT EXCEEDED]"; current++; loadQuestion(); }
     }, 1000);
 }
 
-function nextQuestion() { answers[current] = document.getElementById('answer').value.trim() || "No response."; current++; loadQuestion(); }
+function nextQuestion() { answers[current] = document.getElementById('answer').value.trim() || "No response provided."; current++; loadQuestion(); }
 
 function showReview() {
     document.getElementById('timer').style.display = 'none';
     document.getElementById('input-area').style.display = 'none';
-    document.getElementById('progress').innerText = "Review";
+    document.getElementById('progress').innerText = "Final Review";
     let html = `<div class="review-container">`;
-    mainQuestions.forEach((q, i) => { html += `<div class="review-item" onclick="jumpTo(${i})"><div class="review-q">Q${i+1}</div><div class="review-a">${answers[i]}</div></div>`; });
-    html += `</div><button class="action-btn" onclick="finalSubmit()" style="margin-top:15px; border-color:#ff69b4; color:#ff69b4;">Submit Final</button>`;
+    mainQuestions.forEach((q, i) => { html += `<div class="review-item" onclick="jumpTo(${i})"><div class="review-q">Question ${i+1}</div><div class="review-a">${answers[i]}</div></div>`; });
+    html += `</div><button class="action-btn" onclick="finalSubmit()" style="margin-top:15px; border-color:#ff69b4; color:#ff69b4;">Submit Final Exam</button>`;
     document.getElementById('question').innerHTML = html;
 }
 
 function jumpTo(index) { current = index; document.getElementById('input-area').style.display = 'flex'; loadQuestion(); }
 
 function finalSubmit() {
-    document.getElementById('question').innerHTML = `<div class="glow-text">Uploading...</div>`;
-    let content = `**Roblox**: ${window.rUser}\n**Discord**: ${window.dUser?.username}\n\n`;
+    document.getElementById('question').innerHTML = `<div class="glow-text">Transmitting Answers...</div>`;
+    let content = `**Roblox Account**: ${window.rUser}\n**Discord User**: ${window.dUser?.username}\n\n`;
     mainQuestions.forEach((q, i) => { content += `**Q${i+1}:** ${q}\n> ${answers[i]}\n\n`; });
     fetch(WORKER_URL, {
         method: "POST",
         body: JSON.stringify({ username: window.rUser, content, rank: window.userRank, avatar: `https://cdn.discordapp.com/avatars/${window.dUser.id}/${window.dUser.avatar}.png` })
-    }).then(() => { document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Complete</div>`; });
+    }).then(() => { document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Submission Received</div>`; });
 }
 </script>
 </body>
