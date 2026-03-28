@@ -10,80 +10,80 @@
 <meta property="og:image" content="https://imgur.com/a/eGvjGXh">
 <meta name="theme-color" content="#00dcff">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500&display=swap');
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
-  body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; overflow: hidden; }
-  body::before { content: ''; position: fixed; inset: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 60% 80%, rgba(120, 0, 255, 0.07) 0%, transparent 50%); animation: bgShift 12s ease-in-out infinite alternate; z-index: 0; pointer-events: none; }
-  @keyframes bgShift { 0% { transform: translate(0%, 0%) rotate(0deg); } 33% { transform: translate(3%, -4%) rotate(3deg); } 66% { transform: translate(-4%, 3%) rotate(-2deg); } 100% { transform: translate(2%, 5%) rotate(4deg); } }
-  #app { position: relative; z-index: 1; width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; }
-  .header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: linear-gradient(135deg, #0d0d0d, #111); border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; position: relative; overflow: hidden; }
-  .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff69b4, #00dcff, #ff69b4); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-  .header-logo { width: 48px; height: 48px; border-radius: 10px; border: 1px solid rgba(255,105,180,0.4); }
-  .header-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: #fff; letter-spacing: 1px; }
-  .header-subtitle { font-size: 12px; color: #00dcff; letter-spacing: 2px; text-transform: uppercase; }
-  .notice-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(0, 220, 255, 0.25); border-radius: 12px; padding: 12px 16px; color: #99b4c0; font-size: 12px; text-align: center; }
-  .glow-text { color: #00dcff; font-weight: 700; text-transform: uppercase; }
-  .meta-row { display: flex; justify-content: space-between; align-items: center; }
-  .progress { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: #ff69b4; }
-  .timer { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #00dcff; display: none; transition: color 0.3s; }
-  .timer.danger { color: #ff3a3a; animation: timerPulse 0.6s ease-in-out infinite; text-shadow: 0 0 8px rgba(255,50,50,0.8), 0 0 20px rgba(255,50,50,0.4); }
-  @keyframes timerPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.08); } }
-  .seg-tracker { display: flex; gap: 4px; width: 100%; }
-  .seg-block { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); transition: background 0.3s, box-shadow 0.3s; }
-  .seg-block.filled { background: linear-gradient(90deg, #ff69b4, #00dcff); box-shadow: 0 0 6px rgba(0,220,255,0.4); }
-  .seg-block.current { background: rgba(0,220,255,0.3); animation: segPulse 1s ease-in-out infinite; }
-  @keyframes segPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-  .question-card { background: #0d0d0d; border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; padding: 24px; color: #f0f0f0; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-  .question-card.fade-out { animation: fadeOut 0.2s ease forwards; }
-  .question-card.fade-in { animation: fadeIn 0.25s ease forwards; }
-  @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-8px); } }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .typewriter-cursor { display: inline-block; width: 2px; height: 1em; background: #00dcff; margin-left: 2px; vertical-align: middle; animation: blink 0.7s step-end infinite; }
-  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
-  .review-container { text-align: left; width: 100%; max-height: 380px; overflow-y: auto; }
-  .review-item { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; cursor: pointer; }
-  .review-item.timed-out { border-left: 2px solid #ff3a3a; padding-left: 10px; }
-  .review-q { font-size: 10px; color: #00dcff; text-transform: uppercase; }
-  .review-q.timed-out { color: #ff3a3a; }
-  .review-a { font-size: 13px; color: #fff; margin-top: 4px; }
-  .review-a.timed-out { color: #ff6b6b; font-style: italic; }
-  #input-area { display: none; flex-direction: column; gap: 10px; }
-  #answer { width: 100%; min-height: 120px; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 105, 180, 0.3); background: #0d0d0d; color: #fff; outline: none; resize: none; -webkit-user-select: text; user-select: text; }
-  #answer.single-line { min-height: unset; height: 48px; resize: none; }
-  .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(0, 220, 255, 0.5); background: rgba(0, 220, 255, 0.1); color: #00dcff; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: 0.2s; }
-  .action-btn:hover { background: linear-gradient(90deg, #ff69b4, #00dcff); color: #000; border-color: transparent; }
-  .info-pill { font-size: 12px; color: #99b4c0; border-radius: 8px; padding: 10px 14px; }
-  .info-pill.cyan { background: rgba(0,220,255,0.05); border: 1px solid rgba(0,220,255,0.15); }
-  .info-pill.pink { background: rgba(255,105,180,0.05); border: 1px solid rgba(255,105,180,0.15); }
-  .credit-text { font-family: 'Rajdhani', sans-serif; font-size: 10px; color: rgba(255, 255, 255, 0.2); text-align: center; margin-top: 15px; letter-spacing: 2px; }
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
+  body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; overflow: hidden; }
+  body::before { content: ''; position: fixed; inset: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 60% 80%, rgba(120, 0, 255, 0.07) 0%, transparent 50%); animation: bgShift 12s ease-in-out infinite alternate; z-index: 0; pointer-events: none; }
+  @keyframes bgShift { 0% { transform: translate(0%, 0%) rotate(0deg); } 33% { transform: translate(3%, -4%) rotate(3deg); } 66% { transform: translate(-4%, 3%) rotate(-2deg); } 100% { transform: translate(2%, 5%) rotate(4deg); } }
+  #app { position: relative; z-index: 1; width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; }
+  .header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: linear-gradient(135deg, #0d0d0d, #111); border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff69b4, #00dcff, #ff69b4); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .header-logo { width: 48px; height: 48px; border-radius: 10px; border: 1px solid rgba(255,105,180,0.4); }
+  .header-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: #fff; letter-spacing: 1px; }
+  .header-subtitle { font-size: 12px; color: #00dcff; letter-spacing: 2px; text-transform: uppercase; }
+  .notice-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(0, 220, 255, 0.25); border-radius: 12px; padding: 12px 16px; color: #99b4c0; font-size: 12px; text-align: center; }
+  .glow-text { color: #00dcff; font-weight: 700; text-transform: uppercase; }
+  .meta-row { display: flex; justify-content: space-between; align-items: center; }
+  .progress { font-family: 'Rajdhani', sans-serif; font-size: 13px; color: #ff69b4; }
+  .timer { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #00dcff; display: none; transition: color 0.3s; }
+  .timer.danger { color: #ff3a3a; animation: timerPulse 0.6s ease-in-out infinite; text-shadow: 0 0 8px rgba(255,50,50,0.8), 0 0 20px rgba(255,50,50,0.4); }
+  @keyframes timerPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.08); } }
+  .seg-tracker { display: flex; gap: 4px; width: 100%; }
+  .seg-block { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); transition: background 0.3s, box-shadow 0.3s; }
+  .seg-block.filled { background: linear-gradient(90deg, #ff69b4, #00dcff); box-shadow: 0 0 6px rgba(0,220,255,0.4); }
+  .seg-block.current { background: rgba(0,220,255,0.3); animation: segPulse 1s ease-in-out infinite; }
+  @keyframes segPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  .question-card { background: #0d0d0d; border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; padding: 24px; color: #f0f0f0; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .question-card.fade-out { animation: fadeOut 0.2s ease forwards; }
+  .question-card.fade-in { animation: fadeIn 0.25s ease forwards; }
+  @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-8px); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .typewriter-cursor { display: inline-block; width: 2px; height: 1em; background: #00dcff; margin-left: 2px; vertical-align: middle; animation: blink 0.7s step-end infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+  .review-container { text-align: left; width: 100%; max-height: 380px; overflow-y: auto; }
+  .review-item { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; cursor: default; }
+  .review-item.timed-out { border-left: 2px solid #ff3a3a; padding-left: 10px; }
+  .review-q { font-size: 10px; color: #00dcff; text-transform: uppercase; }
+  .review-q.timed-out { color: #ff3a3a; }
+  .review-a { font-size: 13px; color: #fff; margin-top: 4px; }
+  .review-a.timed-out { color: #ff6b6b; font-style: italic; }
+  #input-area { display: none; flex-direction: column; gap: 10px; }
+  #answer { width: 100%; min-height: 120px; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 105, 180, 0.3); background: #0d0d0d; color: #fff; outline: none; resize: none; -webkit-user-select: text; user-select: text; }
+  #answer.single-line { min-height: unset; height: 48px; resize: none; }
+  .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(0, 220, 255, 0.5); background: rgba(0, 220, 255, 0.1); color: #00dcff; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: 0.2s; }
+  .action-btn:hover { background: linear-gradient(90deg, #ff69b4, #00dcff); color: #000; border-color: transparent; }
+  .info-pill { font-size: 12px; color: #99b4c0; border-radius: 8px; padding: 10px 14px; }
+  .info-pill.cyan { background: rgba(0,220,255,0.05); border: 1px solid rgba(0,220,255,0.15); }
+  .info-pill.pink { background: rgba(255,105,180,0.05); border: 1px solid rgba(255,105,180,0.15); }
+  .credit-text { font-family: 'Rajdhani', sans-serif; font-size: 10px; color: rgba(255, 255, 255, 0.2); text-align: center; margin-top: 15px; letter-spacing: 2px; }
 </style>
 </head>
 <body oncontextmenu="return false;">
 <div id="app">
-  <div class="header">
-    <img src="https://i.imgur.com/mWDOZI5.png" class="header-logo">
-    <div class="header-text">
-      <div class="header-title">TMP EXAMINATION</div>
-      <div class="header-subtitle">Phase 4 · Written Assessment</div>
-    </div>
-  </div>
-  <div class="notice-card" id="notice">
-    <span class="glow-text">Identity Verification</span><br>Link your Discord account to begin.
-  </div>
-  <div class="meta-row">
-    <div class="progress" id="progress">Locked</div>
-    <div class="timer" id="timer">⏱ 2:00</div>
-  </div>
-  <div class="seg-tracker" id="segTracker"></div>
-  <div id="question" class="question-card">
-    <button id="authBtn" class="action-btn" onclick="loginDiscord()">Link Discord Account</button>
-  </div>
-  <div id="input-area">
-    <textarea id="answer" placeholder="Type answer here..." onpaste="return false;" oncopy="return false;" oncut="return false;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();nextQuestion();}"></textarea>
-    <button class="action-btn" onclick="nextQuestion()" style="border-color:#ff69b4; color:#ff69b4;">Submit Answer</button>
-  </div>
-  <div id="credit" class="credit-text">CREATED BY FAEVYNL</div>
+  <div class="header">
+    <img src="https://i.imgur.com/mWDOZI5.png" class="header-logo">
+    <div class="header-text">
+      <div class="header-title">TMP EXAMINATION</div>
+      <div class="header-subtitle">Phase 4 · Written Assessment</div>
+    </div>
+  </div>
+  <div class="notice-card" id="notice">
+    <span class="glow-text">Identity Verification</span><br>Link your Discord account to begin.
+  </div>
+  <div class="meta-row">
+    <div class="progress" id="progress">Locked</div>
+    <div class="timer" id="timer">⏱ 2:00</div>
+  </div>
+  <div class="seg-tracker" id="segTracker"></div>
+  <div id="question" class="question-card">
+    <button id="authBtn" class="action-btn" onclick="loginDiscord()">Link Discord Account</button>
+  </div>
+  <div id="input-area">
+    <textarea id="answer" placeholder="Type answer here..." onpaste="return false;" oncopy="return false;" oncut="return false;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();nextQuestion();}"></textarea>
+    <button class="action-btn" onclick="nextQuestion()" style="border-color:#ff69b4; color:#ff69b4;">Submit Answer</button>
+  </div>
+  <div id="credit" class="credit-text">CREATED BY FAEVYNL</div>
 </div>
 <script>
 const WORKER_URL = "https://server.yyourmom96.workers.dev";
@@ -99,195 +99,186 @@ function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Mat
 window.addEventListener('beforeunload', e => { if (examStarted) { e.preventDefault(); e.returnValue = ''; } });
 
 function buildSegTracker(total) {
-    const tracker = document.getElementById('segTracker');
-    tracker.innerHTML = '';
-    for (let i = 0; i < total; i++) {
-        const b = document.createElement('div');
-        b.className = 'seg-block';
-        b.id = `seg-${i}`;
-        tracker.appendChild(b);
-    }
+    const tracker = document.getElementById('segTracker');
+    tracker.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+        const b = document.createElement('div');
+        b.className = 'seg-block';
+        b.id = `seg-${i}`;
+        tracker.appendChild(b);
+    }
 }
 
 function updateSegTracker() {
-    if (!mainQuestions.length) return;
-    mainQuestions.forEach((_, i) => {
-        const b = document.getElementById(`seg-${i}`);
-        if (!b) return;
-        b.className = 'seg-block';
-        if (i < current) b.classList.add('filled');
-        else if (i === current) b.classList.add('current');
-    });
+    if (!mainQuestions.length) return;
+    mainQuestions.forEach((_, i) => {
+        const b = document.getElementById(`seg-${i}`);
+        if (!b) return;
+        b.className = 'seg-block';
+        if (i < current) b.classList.add('filled');
+        else if (i === current) b.classList.add('current');
+    });
 }
 
 function typeText(el, text, speed) {
-    clearInterval(typeInterval);
-    el.innerHTML = '';
-    let i = 0;
-    const cursor = document.createElement('span');
-    cursor.className = 'typewriter-cursor';
-    el.appendChild(cursor);
-    typeInterval = setInterval(() => {
-        if (i < text.length) {
-            el.insertBefore(document.createTextNode(text[i]), cursor);
-            i++;
-        } else {
-            clearInterval(typeInterval);
-            cursor.remove();
-        }
-    }, speed);
+    clearInterval(typeInterval);
+    el.innerHTML = '';
+    let i = 0;
+    const cursor = document.createElement('span');
+    cursor.className = 'typewriter-cursor';
+    el.appendChild(cursor);
+    typeInterval = setInterval(() => {
+        if (i < text.length) {
+            el.insertBefore(document.createTextNode(text[i]), cursor);
+            i++;
+        } else {
+            clearInterval(typeInterval);
+            cursor.remove();
+        }
+    }, speed);
 }
 
 function loginDiscord() {
-    window.location.href = `https://discord.com/oauth2/authorize?client_id=${D_CLIENT}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify`;
+    window.location.href = `https://discord.com/oauth2/authorize?client_id=${D_CLIENT}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify`;
 }
 
 function showInstructions() {
-    document.getElementById('notice').innerHTML = `<span class="glow-text">Discord Verified</span><br>${window.dUser.username}`;
-    document.getElementById('question').innerHTML = `
-        <div style="text-align:left; width:100%;">
-            <div style="font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; color:#ff69b4; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; text-align:center;">Congratulations, Manager on Trial</div>
-            <div style="font-size:13px; color:#b0c8d4; line-height:1.75; margin-bottom:16px;">You've made it to <span style="color:#00dcff; font-weight:600;">Phase 4</span> of The Management Program. This written assessment is designed to evaluate the knowledge and judgment you've developed throughout your time.</div>
-            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
-                <div class="info-pill cyan">📖 <span style="color:#fff; font-weight:500;">Open Book</span> — You may reference any materials during this exam.</div>
-                <div class="info-pill pink">⏱ <span style="color:#fff; font-weight:500;">2 Minutes Per Question</span> — Each question has a strict time limit.</div>
-                <div class="info-pill cyan">📝 <span style="color:#fff; font-weight:500;">Final Review</span> — You'll be able to review and edit all answers before submitting.</div>
-            </div>
-            <button class="action-btn" onclick="startExam()">Begin Examination</button>
-        </div>`;
+    document.getElementById('notice').innerHTML = `<span class="glow-text">Discord Verified</span><br>${window.dUser.username}`;
+    document.getElementById('question').innerHTML = `
+        <div style="text-align:left; width:100%;">
+            <div style="font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; color:#ff69b4; text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; text-align:center;">Congratulations, Manager on Trial</div>
+            <div style="font-size:13px; color:#b0c8d4; line-height:1.75; margin-bottom:16px;">You've made it to <span style="color:#00dcff; font-weight:600;">Phase 4</span> of The Management Program. This written assessment is designed to evaluate the knowledge and judgment you've developed throughout your time.</div>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
+                <div class="info-pill cyan">📖 <span style="color:#fff; font-weight:500;">Open Book</span> — You may reference any materials during this exam.</div>
+                <div class="info-pill pink">⏱ <span style="color:#fff; font-weight:500;">2 Minutes Per Question</span> — Each question has a strict time limit.</div>
+                <div class="info-pill cyan">📝 <span style="color:#fff; font-weight:500;">Final Submission</span> — Review your answers carefully; they cannot be edited once submitted.</div>
+            </div>
+            <button class="action-btn" onclick="startExam()">Begin Examination</button>
+        </div>`;
 }
 
 window.onload = () => {
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
-    const dToken = hashParams.get('access_token');
-    if (dToken) {
-        document.getElementById('question').innerHTML = `<div class="glow-text">Verifying Discord...</div>`;
-        fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${dToken}` } })
-        .then(res => res.json()).then(user => {
-            window.dUser = user;
-            showInstructions();
-        }).catch(() => {
-            document.getElementById('notice').innerHTML = `<span style="color:red;">Verification Failed</span><br>Please try again.`;
-            document.getElementById('question').innerHTML = `<button class="action-btn" onclick="loginDiscord()">Try Again</button>`;
-        });
-    }
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    const dToken = hashParams.get('access_token');
+    if (dToken) {
+        document.getElementById('question').innerHTML = `<div class="glow-text">Verifying Discord...</div>`;
+        fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${dToken}` } })
+        .then(res => res.json()).then(user => {
+            window.dUser = user;
+            showInstructions();
+        }).catch(() => {
+            document.getElementById('notice').innerHTML = `<span style="color:red;">Verification Failed</span><br>Please try again.`;
+            document.getElementById('question').innerHTML = `<button class="action-btn" onclick="loginDiscord()">Try Again</button>`;
+        });
+    }
 };
 
 async function startExam() {
-    const res = await fetch(WORKER_URL, { method: "POST", body: JSON.stringify({ type: "FETCH_QUESTIONS" }) });
-    const data = await res.json();
-    const shuffled = shuffle([...data.questions]);
-    mainQuestions = ["What is your Roblox username?", ...shuffled];
-    timedOut = new Array(mainQuestions.length).fill(false);
-    examStarted = true;
-    buildSegTracker(mainQuestions.length);
-    document.getElementById('notice').style.display = 'none';
-    document.getElementById('input-area').style.display = 'flex';
-    loadQuestion(true);
+    const res = await fetch(WORKER_URL, { method: "POST", body: JSON.stringify({ type: "FETCH_QUESTIONS" }) });
+    const data = await res.json();
+    const shuffled = shuffle([...data.questions]);
+    mainQuestions = ["What is your Roblox username?", ...shuffled];
+    timedOut = new Array(mainQuestions.length).fill(false);
+    examStarted = true;
+    buildSegTracker(mainQuestions.length);
+    document.getElementById('notice').style.display = 'none';
+    document.getElementById('input-area').style.display = 'flex';
+    loadQuestion(true);
 }
 
 function transitionTo(fn) {
-    const card = document.getElementById('question');
-    card.classList.add('fade-out');
-    setTimeout(() => { card.classList.remove('fade-out'); fn(); card.classList.add('fade-in'); setTimeout(() => card.classList.remove('fade-in'), 300); }, 200);
+    const card = document.getElementById('question');
+    card.classList.add('fade-out');
+    setTimeout(() => { card.classList.remove('fade-out'); fn(); card.classList.add('fade-in'); setTimeout(() => card.classList.remove('fade-in'), 300); }, 200);
 }
 
 function loadQuestion(instant) {
-    const load = () => {
-        const qContainer = document.getElementById('question');
-        const answerEl = document.getElementById('answer');
-        clearInterval(timerInterval);
-        if (current >= mainQuestions.length) { showReview(); return; }
-        document.getElementById('progress').innerText = `QUESTION ${current + 1} / ${mainQuestions.length}`;
-        updateSegTracker();
-        answerEl.value = answers[current] || '';
-        const timerEl = document.getElementById('timer');
-        timerEl.classList.remove('danger');
-        if (current === 0) {
-            answerEl.classList.add('single-line');
-            answerEl.placeholder = "Enter your Roblox username...";
-            timerEl.style.display = 'none';
-            typeText(qContainer, mainQuestions[current], 18);
-        } else {
-            answerEl.classList.remove('single-line');
-            answerEl.placeholder = "Type answer here...";
-            timerEl.style.display = 'block';
-            typeText(qContainer, mainQuestions[current], 14);
-            startTimer();
-        }
-        answerEl.focus();
-    };
-    if (instant) { load(); } else { transitionTo(load); }
+    const load = () => {
+        const qContainer = document.getElementById('question');
+        const answerEl = document.getElementById('answer');
+        clearInterval(timerInterval);
+        if (current >= mainQuestions.length) { showReview(); return; }
+        document.getElementById('progress').innerText = `QUESTION ${current + 1} / ${mainQuestions.length}`;
+        updateSegTracker();
+        answerEl.value = answers[current] || '';
+        const timerEl = document.getElementById('timer');
+        timerEl.classList.remove('danger');
+        if (current === 0) {
+            answerEl.classList.add('single-line');
+            answerEl.placeholder = "Enter your Roblox username...";
+            timerEl.style.display = 'none';
+            typeText(qContainer, mainQuestions[current], 18);
+        } else {
+            answerEl.classList.remove('single-line');
+            answerEl.placeholder = "Type answer here...";
+            timerEl.style.display = 'block';
+            typeText(qContainer, mainQuestions[current], 14);
+            startTimer();
+        }
+        answerEl.focus();
+    };
+    if (instant) { load(); } else { transitionTo(load); }
 }
 
 function startTimer() {
-    secondsLeft = TIME_LIMIT;
-    const timerEl = document.getElementById('timer');
-    timerEl.innerText = `⏱ 2:00`;
-    timerEl.classList.remove('danger');
-    timerInterval = setInterval(() => {
-        secondsLeft--;
-        const mins = Math.floor(secondsLeft / 60); const secs = secondsLeft % 60;
-        timerEl.innerText = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
-        if (secondsLeft <= 30) timerEl.classList.add('danger');
-        if (secondsLeft <= 0) {
-            timedOut[current] = true;
-            answers[current] = document.getElementById('answer').value.trim() || "[TIME LIMIT EXCEEDED]";
-            current++;
-            loadQuestion(false);
-        }
-    }, 1000);
+    secondsLeft = TIME_LIMIT;
+    const timerEl = document.getElementById('timer');
+    timerEl.innerText = `⏱ 2:00`;
+    timerEl.classList.remove('danger');
+    timerInterval = setInterval(() => {
+        secondsLeft--;
+        const mins = Math.floor(secondsLeft / 60); const secs = secondsLeft % 60;
+        timerEl.innerText = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
+        if (secondsLeft <= 30) timerEl.classList.add('danger');
+        if (secondsLeft <= 0) {
+            timedOut[current] = true;
+            answers[current] = document.getElementById('answer').value.trim() || "[TIME LIMIT EXCEEDED]";
+            current++;
+            loadQuestion(false);
+        }
+    }, 1000);
 }
 
 function nextQuestion() {
-    clearInterval(typeInterval);
-    const val = document.getElementById('answer').value.trim();
-    if (current === 0) {
-        if (val.length < 3) return alert("Please enter your Roblox username.");
-        window.rUser = val;
-    }
-    answers[current] = val || "No response provided.";
-    current++;
-    loadQuestion(false);
+    clearInterval(typeInterval);
+    const val = document.getElementById('answer').value.trim();
+    if (current === 0) {
+        if (val.length < 3) return alert("Please enter your Roblox username.");
+        window.rUser = val;
+    }
+    answers[current] = val || "No response provided.";
+    current++;
+    loadQuestion(false);
 }
 
 function showReview() {
-    examStarted = false;
-    clearInterval(typeInterval);
-    document.getElementById('timer').style.display = 'none';
-    document.getElementById('input-area').style.display = 'none';
-    document.getElementById('progress').innerText = "Final Review";
-    document.getElementById('segTracker').innerHTML = '';
-    let html = `<div class="review-container">`;
-    mainQuestions.forEach((q, i) => {
-        const to = timedOut[i];
-        html += `<div class="review-item${to ? ' timed-out' : ''}" onclick="jumpTo(${i})">
-            <div class="review-q${to ? ' timed-out' : ''}">Question ${i+1}${to ? ' — TIMED OUT' : ''}</div>
-            <div class="review-a${to ? ' timed-out' : ''}">${answers[i]}</div>
-        </div>`;
-    });
-    html += `</div><button class="action-btn" onclick="finalSubmit()" style="margin-top:15px; border-color:#ff69b4; color:#ff69b4;">Submit Final Exam</button>`;
-    transitionTo(() => { document.getElementById('question').innerHTML = html; });
-}
-
-function jumpTo(index) {
-    examStarted = true;
-    timedOut[index] = false;
-    current = index;
-    buildSegTracker(mainQuestions.length);
-    document.getElementById('input-area').style.display = 'flex';
-    loadQuestion(false);
+    examStarted = false;
+    clearInterval(typeInterval);
+    document.getElementById('timer').style.display = 'none';
+    document.getElementById('input-area').style.display = 'none';
+    document.getElementById('progress').innerText = "Final Review";
+    document.getElementById('segTracker').innerHTML = '';
+    let html = `<div class="review-container">`;
+    mainQuestions.forEach((q, i) => {
+        const to = timedOut[i];
+        html += `<div class="review-item${to ? ' timed-out' : ''}" style="cursor: default;">
+            <div class="review-q${to ? ' timed-out' : ''}">Question ${i+1}${to ? ' — TIMED OUT' : ''}</div>
+            <div class="review-a${to ? ' timed-out' : ''}">${answers[i]}</div>
+        </div>`;
+    });
+    html += `</div><button class="action-btn" onclick="finalSubmit()" style="margin-top:15px; border-color:#ff69b4; color:#ff69b4;">Submit Final Exam</button>`;
+    transitionTo(() => { document.getElementById('question').innerHTML = html; });
 }
 
 function finalSubmit() {
-    examStarted = false;
-    transitionTo(() => { document.getElementById('question').innerHTML = `<div class="glow-text">Transmitting Answers...</div>`; });
-    let content = `**Roblox Username**: ${window.rUser}\n**Discord User**: ${window.dUser?.username}\n\n`;
-    mainQuestions.forEach((q, i) => { content += `**Q${i+1}:** ${q}\n> ${answers[i]}\n\n`; });
-    fetch(WORKER_URL, {
-        method: "POST",
-        body: JSON.stringify({ username: window.rUser, content, rank: "N/A", avatar: `https://cdn.discordapp.com/avatars/${window.dUser.id}/${window.dUser.avatar}.png` })
-    }).then(() => { transitionTo(() => { document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Submission Received</div>`; }); });
+    examStarted = false;
+    transitionTo(() => { document.getElementById('question').innerHTML = `<div class="glow-text">Transmitting Answers...</div>`; });
+    let content = `**Roblox Username**: ${window.rUser}\n**Discord User**: ${window.dUser?.username}\n\n`;
+    mainQuestions.forEach((q, i) => { content += `**Q${i+1}:** ${q}\n> ${answers[i]}\n\n`; });
+    fetch(WORKER_URL, {
+        method: "POST",
+        body: JSON.stringify({ username: window.rUser, content, rank: "N/A", avatar: `https://cdn.discordapp.com/avatars/${window.dUser.id}/${window.dUser.avatar}.png` })
+    }).then(() => { transitionTo(() => { document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Submission Received</div>`; }); });
 }
 </script>
 </body>
