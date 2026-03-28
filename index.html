@@ -91,12 +91,12 @@ function showInstructions() {
                 Congratulations, Manager on Trial
             </div>
             <div style="font-size:13px; color:#b0c8d4; line-height:1.75; margin-bottom:16px;">
-                You've made it to <span style="color:#00dcff; font-weight:600;">Phase 4</span> of The Management Program. This written assessment is designed to evaluate the knowledge and judgment you've developed throughout your training.
+                You've made it to <span style="color:#00dcff; font-weight:600;">Phase 4</span> of The Management Program. This written assessment is designed to evaluate the knowledge and judgment you've developed throughout your time here.
             </div>
             <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
                 <div class="info-pill cyan">📖 <span style="color:#fff; font-weight:500;">Open Book</span> — You may reference any materials during this exam.</div>
                 <div class="info-pill pink">⏱ <span style="color:#fff; font-weight:500;">2 Minutes Per Question</span> — Each question has a strict time limit. Be clear and concise.</div>
-                <div class="info-pill cyan">✏️ <span style="color:#fff; font-weight:500;">Final Review</span> — You'll be able to review and edit all answers before submitting.</div>
+                <div class="info-pill cyan">📝 <span style="color:#fff; font-weight:500;">Final Review</span> — You'll be able to review and edit all answers before submitting.</div>
             </div>
             <button class="action-btn" onclick="startExam()">Begin Examination</button>
         </div>`;
@@ -133,7 +133,7 @@ function loadQuestion() {
     clearInterval(timerInterval);
     if (current >= mainQuestions.length) { showReview(); return; }
     document.getElementById('progressBar').style.width = (current / mainQuestions.length) * 100 + '%';
-    document.getElementById('progress').innerText = `Question ${current + 1} of ${mainQuestions.length}`;
+    document.getElementById('progress').innerText = `QUESTION ${current + 1} / ${mainQuestions.length}`;
     qContainer.innerText = mainQuestions[current];
     answerEl.value = answers[current] || '';
     answerEl.focus();
