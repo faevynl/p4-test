@@ -138,11 +138,18 @@
   }
 
   #input-area { display: none; gap: 10px; margin-top: 10px; }
+  
+  /* NEW: Cyan Outline for Input */
   #answer {
     flex: 1; padding: 13px 16px; border-radius: 12px;
     border: 1px solid rgba(255, 105, 180, 0.35);
     background: #0d0d0d; color: #fff; outline: none;
     font-family: 'Inter', sans-serif;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  #answer:focus {
+    border-color: #00dcff;
+    box-shadow: 0 0 8px rgba(0, 220, 255, 0.4);
   }
 
   .action-btn {
@@ -172,10 +179,18 @@
     box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
   }
 
+  /* NEW: Hover Gradient for Submit Button */
   #sendBtn {
     padding: 13px 22px; border-radius: 12px; border: 1px solid #ff69b4;
     background: transparent; color: #fff; cursor: pointer;
     font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    transition: all 0.3s ease;
+  }
+  #sendBtn:hover {
+    background: linear-gradient(90deg, #ff69b4, #00dcff);
+    border-color: transparent;
+    color: #000;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.4);
   }
 </style>
 </head>
@@ -227,7 +242,6 @@ let timerInterval = null;
 let secondsLeft = TIME_LIMIT;
 window.linkedUser = null;
 
-// Initial Questions
 const infoQuestions = ["Enter your Roblox username:"];
 let mainQuestions = []; 
 let allQuestions = [...infoQuestions];
@@ -260,9 +274,7 @@ function validateDiscordUser(token) {
     .then(user => {
         localStorage.setItem('discord_token', token);
         window.linkedUser = user;
-        
         document.getElementById('notice').innerText = `Linked as: ${user.username} (${user.id})`;
-        
         document.getElementById('discordBtn').style.display = 'none';
         document.getElementById('startBtn').style.display = 'block';
         document.getElementById('progress').innerText = "Account Verified";
@@ -361,7 +373,6 @@ function finishExam() {
 function sendToDiscord() {
   const user = window.linkedUser;
   const robloxName = answers[0] || "Unknown";
-  
   let content = `Examinee Info\nRoblox: ${robloxName}\nDiscord: ${user.username}\nID: ${user.id}\n\nResponses\n\n`;
 
   mainQuestions.forEach((q, i) => {
