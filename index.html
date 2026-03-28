@@ -29,13 +29,18 @@
   .timer { font-family: 'Rajdhani', sans-serif; font-weight: 700; color: #00dcff; display: none; transition: color 0.3s; }
   .timer.danger { color: #ff3a3a; animation: timerPulse 0.6s ease-in-out infinite; text-shadow: 0 0 8px rgba(255,50,50,0.8), 0 0 20px rgba(255,50,50,0.4); }
   @keyframes timerPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.08); } }
-  .progress-bar-track { width: 100%; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; }
-  .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff69b4, #00dcff); transition: width 0.4s; }
+  .seg-tracker { display: flex; gap: 4px; width: 100%; }
+  .seg-block { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); transition: background 0.3s, box-shadow 0.3s; }
+  .seg-block.filled { background: linear-gradient(90deg, #ff69b4, #00dcff); box-shadow: 0 0 6px rgba(0,220,255,0.4); }
+  .seg-block.current { background: rgba(0,220,255,0.3); animation: segPulse 1s ease-in-out infinite; }
+  @keyframes segPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
   .question-card { background: #0d0d0d; border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; padding: 24px; color: #f0f0f0; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
   .question-card.fade-out { animation: fadeOut 0.2s ease forwards; }
   .question-card.fade-in { animation: fadeIn 0.25s ease forwards; }
   @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-8px); } }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .typewriter-cursor { display: inline-block; width: 2px; height: 1em; background: #00dcff; margin-left: 2px; vertical-align: middle; animation: blink 0.7s step-end infinite; }
+  @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
   .review-container { text-align: left; width: 100%; max-height: 380px; overflow-y: auto; }
   .review-item { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; cursor: pointer; }
   .review-item.timed-out { border-left: 2px solid #ff3a3a; padding-left: 10px; }
@@ -70,7 +75,7 @@
     <div class="progress" id="progress">Locked</div>
     <div class="timer" id="timer">⏱ 2:00</div>
   </div>
-  <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBar"></div></div>
+  <div class="seg-tracker" id="segTracker"></div>
   <div id="question" class="question-card">
     <button id="authBtn" class="action-btn" onclick="loginDiscord()">Link Discord Account</button>
   </div>
@@ -86,12 +91,52 @@ const D_CLIENT = '1487244125488152589';
 const REDIRECT = window.location.href.split('#')[0];
 const TIME_LIMIT = 120;
 let current = 0; let answers = []; let timedOut = []; let timerInterval = null; let secondsLeft = TIME_LIMIT;
-let examStarted = false;
+let examStarted = false; let typeInterval = null;
 window.dUser = null; window.rUser = null; let mainQuestions = [];
 
 function shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
 
 window.addEventListener('beforeunload', e => { if (examStarted) { e.preventDefault(); e.returnValue = ''; } });
+
+function buildSegTracker(total) {
+    const tracker = document.getElementById('segTracker');
+    tracker.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+        const b = document.createElement('div');
+        b.className = 'seg-block';
+        b.id = `seg-${i}`;
+        tracker.appendChild(b);
+    }
+}
+
+function updateSegTracker() {
+    if (!mainQuestions.length) return;
+    mainQuestions.forEach((_, i) => {
+        const b = document.getElementById(`seg-${i}`);
+        if (!b) return;
+        b.className = 'seg-block';
+        if (i < current) b.classList.add('filled');
+        else if (i === current) b.classList.add('current');
+    });
+}
+
+function typeText(el, text, speed) {
+    clearInterval(typeInterval);
+    el.innerHTML = '';
+    let i = 0;
+    const cursor = document.createElement('span');
+    cursor.className = 'typewriter-cursor';
+    el.appendChild(cursor);
+    typeInterval = setInterval(() => {
+        if (i < text.length) {
+            el.insertBefore(document.createTextNode(text[i]), cursor);
+            i++;
+        } else {
+            clearInterval(typeInterval);
+            cursor.remove();
+        }
+    }, speed);
+}
 
 function loginDiscord() {
     window.location.href = `https://discord.com/oauth2/authorize?client_id=${D_CLIENT}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify`;
@@ -135,6 +180,7 @@ async function startExam() {
     mainQuestions = ["What is your Roblox username?", ...shuffled];
     timedOut = new Array(mainQuestions.length).fill(false);
     examStarted = true;
+    buildSegTracker(mainQuestions.length);
     document.getElementById('notice').style.display = 'none';
     document.getElementById('input-area').style.display = 'flex';
     loadQuestion(true);
@@ -152,23 +198,24 @@ function loadQuestion(instant) {
         const answerEl = document.getElementById('answer');
         clearInterval(timerInterval);
         if (current >= mainQuestions.length) { showReview(); return; }
-        document.getElementById('progressBar').style.width = (current / mainQuestions.length) * 100 + '%';
         document.getElementById('progress').innerText = `QUESTION ${current + 1} / ${mainQuestions.length}`;
-        qContainer.innerText = mainQuestions[current];
+        updateSegTracker();
         answerEl.value = answers[current] || '';
-        answerEl.focus();
         const timerEl = document.getElementById('timer');
         timerEl.classList.remove('danger');
         if (current === 0) {
             answerEl.classList.add('single-line');
             answerEl.placeholder = "Enter your Roblox username...";
             timerEl.style.display = 'none';
+            typeText(qContainer, mainQuestions[current], 18);
         } else {
             answerEl.classList.remove('single-line');
             answerEl.placeholder = "Type answer here...";
             timerEl.style.display = 'block';
+            typeText(qContainer, mainQuestions[current], 14);
             startTimer();
         }
+        answerEl.focus();
     };
     if (instant) { load(); } else { transitionTo(load); }
 }
@@ -193,6 +240,7 @@ function startTimer() {
 }
 
 function nextQuestion() {
+    clearInterval(typeInterval);
     const val = document.getElementById('answer').value.trim();
     if (current === 0) {
         if (val.length < 3) return alert("Please enter your Roblox username.");
@@ -205,9 +253,11 @@ function nextQuestion() {
 
 function showReview() {
     examStarted = false;
+    clearInterval(typeInterval);
     document.getElementById('timer').style.display = 'none';
     document.getElementById('input-area').style.display = 'none';
     document.getElementById('progress').innerText = "Final Review";
+    document.getElementById('segTracker').innerHTML = '';
     let html = `<div class="review-container">`;
     mainQuestions.forEach((q, i) => {
         const to = timedOut[i];
@@ -224,6 +274,7 @@ function jumpTo(index) {
     examStarted = true;
     timedOut[index] = false;
     current = index;
+    buildSegTracker(mainQuestions.length);
     document.getElementById('input-area').style.display = 'flex';
     loadQuestion(false);
 }
