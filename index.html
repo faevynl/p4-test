@@ -73,12 +73,6 @@
   <div id="credit" class="credit-text">CREATED BY FAEVYNL</div>
 </div>
 <script>
-const SFX_CLICK = new Audio('https://jumpshare.com/v/LFo1WquHK7D5LjT5KEen?download=1');
-const SFX_TICK = new Audio('https://jumpshare.com/v/EcwbcLaD3lil4b735Vbo?download=1');
-const SFX_SUCCESS = new Audio('https://cdn.pixabay.com/audio/2021/08/04/audio_06d36f8f53.mp3');
-
-SFX_TICK.loop = true;
-
 const WORKER_URL = "https://server.yyourmom96.workers.dev";
 const CLIENT_ID = '1487244125488152589';
 const REDIRECT_URI = window.location.href.split('#')[0];
@@ -87,11 +81,7 @@ let current = 0; let answers = []; let timerInterval = null; let secondsLeft = T
 const infoQuestions = ["Enter your Roblox username:"];
 let mainQuestions = []; let allQuestions = [...infoQuestions];
 
-function playClick() { SFX_CLICK.currentTime = 0; SFX_CLICK.play().catch(() => {}); }
-function stopTick() { SFX_TICK.pause(); SFX_TICK.currentTime = 0; }
-
 function loginWithDiscord() {
-    SFX_CLICK.play().then(() => { SFX_CLICK.pause(); SFX_CLICK.currentTime = 0; });
     window.location.href = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
 }
 window.onload = () => {
@@ -112,7 +102,6 @@ function validateDiscordUser(token) {
     });
 }
 async function startExam() {
-    SFX_CLICK.load(); SFX_TICK.load(); SFX_SUCCESS.load();
     try {
         const response = await fetch(WORKER_URL);
         const data = await response.json();
@@ -127,44 +116,46 @@ async function startExam() {
 function loadQuestion() {
     const qContainer = document.getElementById('question');
     const credit = document.getElementById('credit');
+    clearInterval(timerInterval);
+    
     if (current > 0) credit.classList.add('credit-hidden');
     if (current >= allQuestions.length) { finishExam(); return; }
-    playClick();
+    
     qContainer.classList.remove('fade-in');
     void qContainer.offsetWidth; 
     qContainer.classList.add('fade-in');
+    
     document.getElementById('progressBar').style.width = (current / allQuestions.length) * 100 + '%';
     document.getElementById('progress').innerText = `Question ${current + 1} / ${allQuestions.length}`;
     qContainer.innerText = allQuestions[current];
     document.getElementById('answer').value = '';
     document.getElementById('answer').focus();
+    
     if (current >= infoQuestions.length) {
         document.getElementById('timer').style.display = 'block';
         startTimer();
-    } else {
-        stopTick();
     }
 }
 function startTimer() {
-    clearInterval(timerInterval);
     secondsLeft = TIME_LIMIT;
-    SFX_TICK.play().catch(() => {});
+    document.getElementById('timer').innerText = `⏱ 2:00`;
     timerInterval = setInterval(() => {
         secondsLeft--;
         const mins = Math.floor(secondsLeft / 60); const secs = secondsLeft % 60;
         document.getElementById('timer').innerText = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
-        if (secondsLeft <= 0) nextQuestion(true);
+        if (secondsLeft <= 0) {
+            clearInterval(timerInterval);
+            nextQuestion(true);
+        }
     }, 1000);
 }
 function nextQuestion(timedOut = false) {
-    stopTick();
-    answers.push(timedOut ? "Timed Out" : (document.getElementById('answer').value.trim() || "Examinee failed to provide an answer."));
+    answers.push(timedOut ? "Timed Out" : (document.getElementById('answer').value.trim() || "No answer."));
     current++; loadQuestion();
 }
 document.getElementById('sendBtn').onclick = () => nextQuestion(false);
 document.getElementById('answer').onkeydown = (e) => { if(e.key === 'Enter') nextQuestion(false); };
 function finishExam() {
-    stopTick();
     clearInterval(timerInterval);
     document.getElementById('timer').style.display = 'none';
     document.getElementById('input-area').style.display = 'none';
@@ -177,7 +168,6 @@ function finishExam() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: answers[0], content, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`, tag: user.username })
     }).then(() => {
-        SFX_SUCCESS.play().catch(() => {});
         document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Submitted Successfully</div>`;
     });
 }
