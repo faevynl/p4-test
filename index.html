@@ -5,16 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TMP Phase 4 | Written Assessment</title>
 
-<!-- Open Graph / Discord Embed -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="TMP Phase 4 · Written Assessment">
-<meta property="og:description" content="Complete your Phase 4 Written Assessment. Link your Discord account to begin.">
-<meta property="og:image" content="https://i.imgur.com/mWDOZI5.png">
+<meta property="og:description" content="Complete your Phase 4.">
+<meta property="og:image" content="https://imgur.com/a/eGvjGXh">
 <meta name="theme-color" content="#00dcff">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
-  body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; background-image: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.07) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.07) 0%, transparent 60%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; }
+  body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; overflow: hidden; }
+  body::before { content: ''; position: fixed; inset: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 60% 80%, rgba(120, 0, 255, 0.07) 0%, transparent 50%); animation: bgShift 12s ease-in-out infinite alternate; z-index: 0; pointer-events: none; }
+  @keyframes bgShift { 0% { transform: translate(0%, 0%) rotate(0deg); } 33% { transform: translate(3%, -4%) rotate(3deg); } 66% { transform: translate(-4%, 3%) rotate(-2deg); } 100% { transform: translate(2%, 5%) rotate(4deg); } }
+  #app { position: relative; z-index: 1; }
   #app { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; }
   .header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: linear-gradient(135deg, #0d0d0d, #111); border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; position: relative; overflow: hidden; }
   .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff69b4, #00dcff, #ff69b4); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
@@ -91,7 +93,7 @@ function showInstructions() {
                 Congratulations, Manager on Trial
             </div>
             <div style="font-size:13px; color:#b0c8d4; line-height:1.75; margin-bottom:16px;">
-                You've made it to <span style="color:#00dcff; font-weight:600;">Phase 4</span> of The Management Program. This written assessment is designed to evaluate the knowledge and judgment you've developed throughout your time here.
+                You've made it to <span style="color:#00dcff; font-weight:600;">Phase 4</span> of The Management Program. This written assessment is designed to evaluate the knowledge and judgment you've developed throughout your training.
             </div>
             <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
                 <div class="info-pill cyan">📖 <span style="color:#fff; font-weight:500;">Open Book</span> — You may reference any materials during this exam.</div>
@@ -133,7 +135,7 @@ function loadQuestion() {
     clearInterval(timerInterval);
     if (current >= mainQuestions.length) { showReview(); return; }
     document.getElementById('progressBar').style.width = (current / mainQuestions.length) * 100 + '%';
-    document.getElementById('progress').innerText = `QUESTION ${current + 1} / ${mainQuestions.length}`;
+    document.getElementById('progress').innerText = `Question ${current + 1} of ${mainQuestions.length}`;
     qContainer.innerText = mainQuestions[current];
     answerEl.value = answers[current] || '';
     answerEl.focus();
