@@ -81,7 +81,7 @@
   </div>
   <div id="input-area">
     <textarea id="answer" placeholder="Type answer here..." onpaste="return false;" oncopy="return false;" oncut="return false;" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();nextQuestion();}"></textarea>
-    <button class="action-btn" onclick="nextQuestion()" style="border-color:#ff69b4; color:#ff69b4;">Submit Answer</button>
+    <button class="action-btn" id="submitBtn" onclick="nextQuestion()" style="border-color:#ff69b4; color:#ff69b4;">Submit Answer</button>
   </div>
   <div id="credit" class="credit-text">CREATED BY FAEVYNL</div>
 </div>
@@ -230,9 +230,12 @@ function startTimer() {
         const mins = Math.floor(secondsLeft / 60); const secs = secondsLeft % 60;
         timerEl.innerText = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
         if (secondsLeft <= 30) timerEl.classList.add('danger');
+        
         if (secondsLeft <= 0) {
+            clearInterval(timerInterval);
             timedOut[current] = true;
-            answers[current] = document.getElementById('answer').value.trim() || "[TIME LIMIT EXCEEDED]";
+            const currentVal = document.getElementById('answer').value.trim();
+            answers[current] = currentVal || "[NO RESPONSE RECORDED]";
             current++;
             loadQuestion(false);
         }
@@ -241,6 +244,7 @@ function startTimer() {
 
 function nextQuestion() {
     clearInterval(typeInterval);
+    clearInterval(timerInterval);
     const val = document.getElementById('answer').value.trim();
     if (current === 0) {
         if (val.length < 3) return alert("Please enter your Roblox username.");
@@ -254,6 +258,7 @@ function nextQuestion() {
 function showReview() {
     examStarted = false;
     clearInterval(typeInterval);
+    clearInterval(timerInterval);
     document.getElementById('timer').style.display = 'none';
     document.getElementById('input-area').style.display = 'none';
     document.getElementById('progress').innerText = "Final Review";
@@ -261,8 +266,8 @@ function showReview() {
     let html = `<div class="review-container">`;
     mainQuestions.forEach((q, i) => {
         const to = timedOut[i];
-        html += `<div class="review-item${to ? ' timed-out' : ''}" style="cursor: default;">
-            <div class="review-q${to ? ' timed-out' : ''}">Question ${i+1}${to ? ' — TIMED OUT' : ''}</div>
+        html += `<div class="review-item${to ? ' timed-out' : ''}">
+            <div class="review-q${to ? ' timed-out' : ''}">Question ${i+1}${to ? ' — <span style="font-weight:700;">[TIME LIMIT EXCEEDED]</span>' : ''}</div>
             <div class="review-a${to ? ' timed-out' : ''}">${answers[i]}</div>
         </div>`;
     });
@@ -274,7 +279,10 @@ function finalSubmit() {
     examStarted = false;
     transitionTo(() => { document.getElementById('question').innerHTML = `<div class="glow-text">Transmitting Answers...</div>`; });
     let content = `**Roblox Username**: ${window.rUser}\n**Discord User**: ${window.dUser?.username}\n\n`;
-    mainQuestions.forEach((q, i) => { content += `**Q${i+1}:** ${q}\n> ${answers[i]}\n\n`; });
+    mainQuestions.forEach((q, i) => { 
+        const status = timedOut[i] ? " [TIMED OUT]" : "";
+        content += `**Q${i+1}${status}:** ${q}\n> ${answers[i]}\n\n`; 
+    });
     fetch(WORKER_URL, {
         method: "POST",
         body: JSON.stringify({ username: window.rUser, content, rank: "N/A", avatar: `https://cdn.discordapp.com/avatars/${window.dUser.id}/${window.dUser.avatar}.png` })
