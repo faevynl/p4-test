@@ -139,13 +139,12 @@
 
   #input-area { display: none; gap: 10px; margin-top: 10px; }
 
-  /* CYAN OUTLINE FIX FOR ALL INPUTS */
   #answer {
     flex: 1; padding: 13px 16px; border-radius: 12px;
     border: 1px solid rgba(255, 105, 180, 0.35);
     background: #0d0d0d; color: #fff;
     font-family: 'Inter', sans-serif;
-    outline: none; /* Reset standard outline */
+    outline: none;
     transition: outline 0.1s ease-in-out;
   }
   #answer:focus {
@@ -171,7 +170,6 @@
     box-shadow: 0 0 20px rgba(0, 220, 255, 0.4);
   }
 
-  /* SUBMIT BUTTON GRADIENT HOVER FIX */
   #sendBtn {
     padding: 13px 22px; border-radius: 12px; border: 1px solid #ff69b4;
     background: transparent; color: #fff; cursor: pointer;
@@ -379,10 +377,10 @@ function finishExam() {
 function sendToDiscord() {
   const user = window.linkedUser;
   const robloxName = answers[0] || "Unknown";
-  let content = `Examinee Info\nRoblox: ${robloxName}\nDiscord: ${user.username}\nID: ${user.id}\n\nResponses\n\n`;
+  let content = `📋 **Examinee Info**\n__Roblox__: ${robloxName}\n__Discord__: ${user.username}\n__ID__: ${user.id}\n\n**Responses**\n\n`;
 
   mainQuestions.forEach((q, i) => {
-    content += `Q${i+1}: ${q}\n────────────\n${answers[i+1] || "No Answer"}\n\n`;
+    content += `**Q${i+1}:** ${q}\n────────────\n${answers[i+1] || "No Answer"}\n\n`;
   });
 
   fetch(WORKER_URL, {
