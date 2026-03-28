@@ -10,131 +10,37 @@
   body {
     font-family: 'Inter', sans-serif;
     background-color: #0a0a0a;
-    background-image:
-      radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.07) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.07) 0%, transparent 60%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 24px;
+    background-image: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.07) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.07) 0%, transparent 60%);
+    display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;
   }
-  #app {
-    width: 100%;
-    max-width: 560px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    background: linear-gradient(135deg, #0d0d0d, #111);
-    border: 1px solid rgba(255, 105, 180, 0.3);
-    border-radius: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .header::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #ff69b4, #00dcff, #ff69b4);
-    background-size: 200% 100%;
-    animation: shimmer 3s linear infinite;
-  }
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-  .header-logo {
-    width: 48px; height: 48px; border-radius: 10px;
-    object-fit: cover; border: 1px solid rgba(255,105,180,0.4); flex-shrink: 0;
-  }
-  .header-title {
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    font-size: 18px; color: #fff; letter-spacing: 1px;
-  }
-  .header-subtitle {
-    font-size: 12px; color: #00dcff; letter-spacing: 2px;
-    text-transform: uppercase; margin-top: 2px;
-  }
-  .notice-card {
-    background: linear-gradient(135deg, rgba(0,220,255,0.05), rgba(255,105,180,0.05));
-    border: 1px solid rgba(0, 220, 255, 0.25); border-radius: 12px;
-    padding: 12px 16px; color: #99b4c0; font-size: 12px;
-    text-align: center; line-height: 1.6;
-  }
-  .glow-text {
-    color: #00dcff; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; animation: text-pulse 2s infinite ease-in-out;
-  }
-  @keyframes text-pulse {
-    0%, 100% { text-shadow: 0 0 5px rgba(0, 220, 255, 0.3); opacity: 0.8; }
-    50% { text-shadow: 0 0 15px rgba(0, 220, 255, 0.9), 0 0 25px rgba(0, 220, 255, 0.5); opacity: 1; color: #fff; }
-  }
+  #app { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; }
+  .header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: linear-gradient(135deg, #0d0d0d, #111); border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; position: relative; overflow: hidden; }
+  .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff69b4, #00dcff, #ff69b4); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .header-logo { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(255,105,180,0.4); flex-shrink: 0; }
+  .header-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: #fff; letter-spacing: 1px; }
+  .header-subtitle { font-size: 12px; color: #00dcff; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+  .notice-card { background: linear-gradient(135deg, rgba(0,220,255,0.05), rgba(255,105,180,0.05)); border: 1px solid rgba(0, 220, 255, 0.25); border-radius: 12px; padding: 12px 16px; color: #99b4c0; font-size: 12px; text-align: center; line-height: 1.6; }
+  .glow-text { color: #00dcff; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; animation: text-pulse 2s infinite ease-in-out; }
+  @keyframes text-pulse { 0%, 100% { text-shadow: 0 0 5px rgba(0, 220, 255, 0.3); opacity: 0.8; } 50% { text-shadow: 0 0 15px rgba(0, 220, 255, 0.9), 0 0 25px rgba(0, 220, 255, 0.5); opacity: 1; color: #fff; } }
   .meta-row { display: flex; justify-content: space-between; align-items: center; }
-  .progress {
-    font-family: 'Rajdhani', sans-serif; font-weight: 600;
-    font-size: 13px; color: #ff69b4; text-transform: uppercase;
-  }
-  .timer {
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    font-size: 15px; color: #00dcff; display: none;
-  }
-  .progress-bar-track {
-    width: 100%; height: 3px; background: rgba(255,255,255,0.08);
-    border-radius: 2px; overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%; width: 0%; background: linear-gradient(90deg, #ff69b4, #00dcff);
-    transition: width 0.4s ease;
-  }
-  .question-card {
-    background: #0d0d0d; border: 1px solid rgba(255, 105, 180, 0.3);
-    border-radius: 16px; padding: 40px 24px; color: #f0f0f0;
-    min-height: 160px; display: flex; flex-direction: column;
-    align-items: center; justify-content: center; text-align: center; overflow: hidden;
-  }
+  .progress { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 13px; color: #ff69b4; text-transform: uppercase; }
+  .timer { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 15px; color: #00dcff; display: none; }
+  .progress-bar-track { width: 100%; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #ff69b4, #00dcff); transition: width 0.4s ease; }
+  .question-card { background: #0d0d0d; border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; padding: 40px 24px; color: #f0f0f0; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
   .fade-in { animation: questionFade 0.5s ease forwards; }
-  @keyframes questionFade {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes questionFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   #input-area { display: none; gap: 10px; margin-top: 10px; }
-  #answer {
-    flex: 1; padding: 13px 16px; border-radius: 12px;
-    border: 1px solid rgba(255, 105, 180, 0.35);
-    background: #0d0d0d; color: #fff; outline: none;
-  }
+  #answer { flex: 1; padding: 13px 16px; border-radius: 12px; border: 1px solid rgba(255, 105, 180, 0.35); background: #0d0d0d; color: #fff; outline: none; }
   #answer:focus { outline: 2px solid #00dcff !important; border-color: #00dcff; }
-  .action-btn {
-    padding: 14px 28px; border-radius: 12px; border: 1px solid rgba(0, 220, 255, 0.5);
-    background: rgba(0, 220, 255, 0.1); color: #00dcff; cursor: pointer;
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    text-transform: uppercase; transition: 0.3s;
-  }
+  .action-btn { padding: 14px 28px; border-radius: 12px; border: 1px solid rgba(0, 220, 255, 0.5); background: rgba(0, 220, 255, 0.1); color: #00dcff; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: 0.3s; }
   .action-btn:hover { background: #00dcff; color: #000; box-shadow: 0 0 20px rgba(0, 220, 255, 0.4); }
-  #sendBtn {
-    padding: 13px 22px; border-radius: 12px; border: 1px solid #ff69b4;
-    background: transparent; color: #fff; cursor: pointer;
-    font-family: 'Rajdhani', sans-serif; font-weight: 700;
-    text-transform: uppercase; transition: 0.3s;
-  }
-  #sendBtn:hover {
-    background: linear-gradient(90deg, #ff69b4, #00dcff) !important;
-    color: #000 !important; border-color: transparent !important;
-  }
+  #sendBtn { padding: 13px 22px; border-radius: 12px; border: 1px solid #ff69b4; background: transparent; color: #fff; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: 0.3s; }
+  #sendBtn:hover { background: linear-gradient(90deg, #ff69b4, #00dcff) !important; color: #000 !important; border-color: transparent !important; }
   .start-btn { border-color: rgba(255, 105, 180, 0.5); background: rgba(255, 105, 180, 0.1); color: #ff69b4; }
   .start-btn:hover { background: #ff69b4; color: #000; }
-  .credit-text {
-    font-family: 'Rajdhani', sans-serif; font-size: 10px; color: rgba(255, 255, 255, 0.2);
-    text-align: center; letter-spacing: 4px; margin-top: 15px;
-    transition: opacity 1s ease, transform 1s ease;
-  }
+  .credit-text { font-family: 'Rajdhani', sans-serif; font-size: 10px; color: rgba(255, 255, 255, 0.2); text-align: center; letter-spacing: 4px; margin-top: 15px; transition: opacity 1s ease, transform 1s ease; }
   .credit-hidden { opacity: 0; transform: translateY(5px); pointer-events: none; }
 </style>
 </head>
@@ -185,6 +91,7 @@ function playClick() { SFX_CLICK.currentTime = 0; SFX_CLICK.play().catch(() => {
 function stopTick() { SFX_TICK.pause(); SFX_TICK.currentTime = 0; }
 
 function loginWithDiscord() {
+    SFX_CLICK.play().then(() => { SFX_CLICK.pause(); SFX_CLICK.currentTime = 0; });
     window.location.href = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
 }
 window.onload = () => {
@@ -222,18 +129,15 @@ function loadQuestion() {
     const credit = document.getElementById('credit');
     if (current > 0) credit.classList.add('credit-hidden');
     if (current >= allQuestions.length) { finishExam(); return; }
-    
     playClick();
     qContainer.classList.remove('fade-in');
     void qContainer.offsetWidth; 
     qContainer.classList.add('fade-in');
-    
     document.getElementById('progressBar').style.width = (current / allQuestions.length) * 100 + '%';
     document.getElementById('progress').innerText = `Question ${current + 1} / ${allQuestions.length}`;
     qContainer.innerText = allQuestions[current];
     document.getElementById('answer').value = '';
     document.getElementById('answer').focus();
-    
     if (current >= infoQuestions.length) {
         document.getElementById('timer').style.display = 'block';
         startTimer();
