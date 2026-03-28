@@ -282,7 +282,7 @@ function startTimer() {
 }
 
 function nextQuestion(timedOut = false) {
-    answers.push(timedOut ? "Timed Out" : (document.getElementById('answer').value.trim() || "N/A"));
+    answers.push(timedOut ? "Timed Out" : (document.getElementById('answer').value.trim() || "Examinee failed to provide an answer."));
     current++; loadQuestion();
 }
 
