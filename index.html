@@ -263,7 +263,7 @@ window.onload = () => {
         .then(res => res.json())
         .then(user => {
             window.linkedUser = user;
-            document.getElementById('notice').innerHTML = `✅ **Linked:** ${user.username} (${user.id})`;
+            document.getElementById('notice').innerHTML = `✅ Linked: ${user.username} (${user.id})`;
             document.getElementById('discordBtn').style.display = 'none';
             document.getElementById('startBtn').style.display = 'block';
             document.getElementById('progress').innerText = "Account Verified";
