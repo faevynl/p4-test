@@ -138,18 +138,19 @@
   }
 
   #input-area { display: none; gap: 10px; margin-top: 10px; }
-  
-  /* NEW: Cyan Outline for Input */
+
   #answer {
     flex: 1; padding: 13px 16px; border-radius: 12px;
     border: 1px solid rgba(255, 105, 180, 0.35);
-    background: #0d0d0d; color: #fff; outline: none;
+    background: #0d0d0d; color: #fff;
     font-family: 'Inter', sans-serif;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    outline: none;
+    transition: all 0.2s ease;
   }
   #answer:focus {
-    border-color: #00dcff;
-    box-shadow: 0 0 8px rgba(0, 220, 255, 0.4);
+    outline: 2px solid #00dcff;
+    box-shadow: 0 0 10px rgba(0, 220, 255, 0.2);
+    border-color: transparent;
   }
 
   .action-btn {
@@ -179,18 +180,20 @@
     box-shadow: 0 0 20px rgba(255, 105, 180, 0.4);
   }
 
-  /* NEW: Hover Gradient for Submit Button */
+  /* FIX: Submit Button Gradient Hover */
   #sendBtn {
     padding: 13px 22px; border-radius: 12px; border: 1px solid #ff69b4;
     background: transparent; color: #fff; cursor: pointer;
     font-family: 'Rajdhani', sans-serif; font-weight: 700;
     transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
   #sendBtn:hover {
     background: linear-gradient(90deg, #ff69b4, #00dcff);
-    border-color: transparent;
     color: #000;
-    box-shadow: 0 0 15px rgba(255, 105, 180, 0.4);
+    border-color: transparent;
+    box-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
   }
 </style>
 </head>
