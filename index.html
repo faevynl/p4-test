@@ -149,6 +149,16 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+    overflow: hidden;
+  }
+
+  .fade-in {
+    animation: questionFade 0.5s ease forwards;
+  }
+
+  @keyframes questionFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   #input-area { display: none; gap: 10px; margin-top: 10px; }
@@ -187,6 +197,17 @@
 
   .start-btn { border-color: rgba(255, 105, 180, 0.5); background: rgba(255, 105, 180, 0.1); color: #ff69b4; }
   .start-btn:hover { background: #ff69b4; color: #000; }
+
+  .credit-text {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.2);
+    text-align: center;
+    letter-spacing: 4px;
+    margin-top: 15px;
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .credit-hidden { opacity: 0; transform: translateY(5px); pointer-events: none; }
 </style>
 </head>
 <body>
@@ -215,8 +236,15 @@
     <input type="text" id="answer" placeholder="Type your answer here...">
     <button id="sendBtn">Submit</button>
   </div>
+  <div id="credit" class="credit-text">CREATED BY FAEVYNL</div>
 </div>
+
 <script>
+const SFX_NEXT = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+const SFX_SUCCESS = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
+SFX_NEXT.volume = 0.4;
+SFX_SUCCESS.volume = 0.5;
+
 const WORKER_URL = "https://server.yyourmom96.workers.dev";
 const CLIENT_ID = '1487244125488152589';
 const REDIRECT_URI = window.location.href.split('#')[0];
@@ -262,10 +290,22 @@ async function startExam() {
 }
 
 function loadQuestion() {
+    const qContainer = document.getElementById('question');
+    const credit = document.getElementById('credit');
+
+    if (current > 0) credit.classList.add('credit-hidden');
     if (current >= allQuestions.length) { finishExam(); return; }
+
+    SFX_NEXT.currentTime = 0;
+    SFX_NEXT.play().catch(() => {});
+
+    qContainer.classList.remove('fade-in');
+    void qContainer.offsetWidth; 
+    qContainer.classList.add('fade-in');
+
     document.getElementById('progressBar').style.width = (current / allQuestions.length) * 100 + '%';
     document.getElementById('progress').innerText = `Question ${current + 1} / ${allQuestions.length}`;
-    document.getElementById('question').innerText = allQuestions[current];
+    qContainer.innerText = allQuestions[current];
     document.getElementById('answer').value = '';
     document.getElementById('answer').focus();
     if (current >= infoQuestions.length) { document.getElementById('timer').style.display = 'block'; startTimer(); }
@@ -304,6 +344,7 @@ function finishExam() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: answers[0], content, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`, tag: user.username })
     }).then(() => {
+        SFX_SUCCESS.play().catch(() => {});
         document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Submitted Successfully</div>`;
     });
 }
