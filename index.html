@@ -7,11 +7,7 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@400;500&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; }
-  body {
-    font-family: 'Inter', sans-serif; background-color: #0a0a0a;
-    background-image: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.07) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.07) 0%, transparent 60%);
-    display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px;
-  }
+  body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; background-image: radial-gradient(ellipse at 20% 50%, rgba(255, 105, 180, 0.07) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(0, 220, 255, 0.07) 0%, transparent 60%); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 24px; }
   #app { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 12px; }
   .header { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: linear-gradient(135deg, #0d0d0d, #111); border: 1px solid rgba(255, 105, 180, 0.3); border-radius: 16px; position: relative; overflow: hidden; }
   .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ff69b4, #00dcff, #ff69b4); background-size: 200% 100%; animation: shimmer 3s linear infinite; }
@@ -33,6 +29,7 @@
   .review-a { font-size: 13px; color: #fff; margin-top: 4px; }
   #input-area { display: none; flex-direction: column; gap: 10px; }
   #answer { width: 100%; min-height: 120px; padding: 14px; border-radius: 12px; border: 1px solid rgba(255, 105, 180, 0.3); background: #0d0d0d; color: #fff; outline: none; resize: none; -webkit-user-select: text; user-select: text; }
+  .manual-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ff69b4; background: #111; color: #fff; text-align: center; }
   .action-btn { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid rgba(0, 220, 255, 0.5); background: rgba(0, 220, 255, 0.1); color: #00dcff; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; text-transform: uppercase; transition: 0.2s; }
   .action-btn:hover { background: #00dcff; color: #000; }
   .credit-text { font-family: 'Rajdhani', sans-serif; font-size: 10px; color: rgba(255, 255, 255, 0.2); text-align: center; margin-top: 15px; letter-spacing: 2px; }
@@ -48,7 +45,7 @@
     </div>
   </div>
   <div class="notice-card" id="notice">
-    <span class="glow-text">Clan Labs Verification</span><br>Link Discord to fetch your clan profile.
+    <span class="glow-text">Identity Verification</span><br>Link Discord to fetch your Roblox profile.
   </div>
   <div class="meta-row">
     <div class="progress" id="progress">Locked</div>
@@ -70,9 +67,8 @@ const WORKER_URL = "https://server.yyourmom96.workers.dev";
 const D_CLIENT = '1487244125488152589';
 const REDIRECT = window.location.href.split('#')[0];
 const TIME_LIMIT = 120;
-
 let current = 0; let answers = []; let timerInterval = null; let secondsLeft = TIME_LIMIT;
-window.dUser = null; window.rUser = null; let mainQuestions = [];
+window.dUser = null; window.rUser = null; window.userRank = null; let mainQuestions = [];
 
 function loginDiscord() {
     window.location.href = `https://discord.com/oauth2/authorize?client_id=${D_CLIENT}&redirect_uri=${encodeURIComponent(REDIRECT)}&response_type=token&scope=identify`;
@@ -81,30 +77,37 @@ function loginDiscord() {
 window.onload = () => {
     const hashParams = new URLSearchParams(window.location.hash.slice(1));
     const dToken = hashParams.get('access_token');
-
     if (dToken) {
-        document.getElementById('question').innerHTML = `<div class="glow-text">Checking Clan Labs...</div>`;
+        document.getElementById('question').innerHTML = `<div class="glow-text">Checking Sync...</div>`;
         fetch('https://discord.com/api/users/@me', { headers: { Authorization: `Bearer ${dToken}` } })
         .then(res => res.json()).then(user => {
             window.dUser = user;
-            return fetch(WORKER_URL, {
-                method: "POST",
-                body: JSON.stringify({ type: "CLANLABS_VERIFY", discordId: user.id })
-            });
+            return fetch(WORKER_URL, { method: "POST", body: JSON.stringify({ type: "CLANLABS_VERIFY", discordId: user.id }) });
         })
         .then(res => res.json()).then(data => {
-            if (data.error) {
-                document.getElementById('notice').innerHTML = `<span style="color:#ff69b4;">Verification Failed</span><br>${data.error}`;
+            if (data.error === "CL_FAIL") {
+                document.getElementById('notice').innerHTML = `<span style="color:#ff69b4;">Sync Failed</span><br>Enter your Roblox Username manually.`;
+                document.getElementById('question').innerHTML = `
+                    <input type="text" id="manualName" class="manual-input" placeholder="Roblox Username">
+                    <button class="action-btn" onclick="startManual()">Verify Manually</button>`;
+            } else if (data.error) {
+                document.getElementById('notice').innerHTML = `<span style="color:red;">Error</span><br>${data.error}`;
                 document.getElementById('question').innerHTML = `<button class="action-btn" onclick="loginDiscord()">Retry</button>`;
             } else {
-                window.rUser = data.username;
-                document.getElementById('notice').innerHTML = `<span class="glow-text">Identity Confirmed</span><br>Roblox: ${window.rUser}`;
+                window.rUser = data.username; window.userRank = data.rank;
+                document.getElementById('notice').innerHTML = `<span class="glow-text">Confirmed</span><br>User: ${window.rUser} (Rank ${window.userRank})`;
                 document.getElementById('question').innerHTML = `<button class="action-btn" onclick="startExam()">Start Examination</button>`;
-                document.getElementById('progress').innerText = "Ready";
             }
         });
     }
 };
+
+async function startManual() {
+    const val = document.getElementById('manualName').value.trim();
+    if (val.length < 3) return alert("Enter valid name.");
+    window.rUser = val; window.userRank = "UNVERIFIED";
+    startExam();
+}
 
 async function startExam() {
     const res = await fetch(WORKER_URL, { method: "POST", body: JSON.stringify({ type: "FETCH_QUESTIONS" }) });
@@ -135,27 +138,18 @@ function startTimer() {
         secondsLeft--;
         const mins = Math.floor(secondsLeft / 60); const secs = secondsLeft % 60;
         document.getElementById('timer').innerText = `⏱ ${mins}:${secs.toString().padStart(2, '0')}`;
-        if (secondsLeft <= 0) { 
-            answers[current] = document.getElementById('answer').value.trim() || "[TIME EXPIRED]";
-            current++; 
-            loadQuestion(); 
-        }
+        if (secondsLeft <= 0) { answers[current] = document.getElementById('answer').value.trim() || "[EXPIRED]"; current++; loadQuestion(); }
     }, 1000);
 }
 
-function nextQuestion() {
-    answers[current] = document.getElementById('answer').value.trim() || "No response.";
-    current++; loadQuestion();
-}
+function nextQuestion() { answers[current] = document.getElementById('answer').value.trim() || "No response."; current++; loadQuestion(); }
 
 function showReview() {
     document.getElementById('timer').style.display = 'none';
     document.getElementById('input-area').style.display = 'none';
-    document.getElementById('progress').innerText = "Final Review";
+    document.getElementById('progress').innerText = "Review";
     let html = `<div class="review-container">`;
-    mainQuestions.forEach((q, i) => {
-        html += `<div class="review-item" onclick="jumpTo(${i})"><div class="review-q">Q${i+1}</div><div class="review-a">${answers[i]}</div></div>`;
-    });
+    mainQuestions.forEach((q, i) => { html += `<div class="review-item" onclick="jumpTo(${i})"><div class="review-q">Q${i+1}</div><div class="review-a">${answers[i]}</div></div>`; });
     html += `</div><button class="action-btn" onclick="finalSubmit()" style="margin-top:15px; border-color:#ff69b4; color:#ff69b4;">Submit Final</button>`;
     document.getElementById('question').innerHTML = html;
 }
@@ -168,14 +162,8 @@ function finalSubmit() {
     mainQuestions.forEach((q, i) => { content += `**Q${i+1}:** ${q}\n> ${answers[i]}\n\n`; });
     fetch(WORKER_URL, {
         method: "POST",
-        body: JSON.stringify({ 
-            username: window.rUser, 
-            content, 
-            avatar: window.dUser ? `https://cdn.discordapp.com/avatars/${window.dUser.id}/${window.dUser.avatar}.png` : "https://i.imgur.com/mWDOZI5.png" 
-        })
-    }).then(() => {
-        document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Complete</div>`;
-    });
+        body: JSON.stringify({ username: window.rUser, content, rank: window.userRank, avatar: `https://cdn.discordapp.com/avatars/${window.dUser.id}/${window.dUser.avatar}.png` })
+    }).then(() => { document.getElementById('question').innerHTML = `<div class="glow-text" style="font-size:24px;">✅ Complete</div>`; });
 }
 </script>
 </body>
