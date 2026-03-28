@@ -42,7 +42,7 @@
   .typewriter-cursor { display: inline-block; width: 2px; height: 1em; background: #00dcff; margin-left: 2px; vertical-align: middle; animation: blink 0.7s step-end infinite; }
   @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
   .review-container { text-align: left; width: 100%; max-height: 380px; overflow-y: auto; }
-  .review-item { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; cursor: pointer; }
+  .review-item { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; cursor: default; }
   .review-item.timed-out { border-left: 2px solid #ff3a3a; padding-left: 10px; }
   .review-q { font-size: 10px; color: #00dcff; text-transform: uppercase; }
   .review-q.timed-out { color: #ff3a3a; }
@@ -151,7 +151,7 @@ function showInstructions() {
             <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
                 <div class="info-pill cyan">📖 <span style="color:#fff; font-weight:500;">Open Book</span> — You may reference any materials during this exam.</div>
                 <div class="info-pill pink">⏱ <span style="color:#fff; font-weight:500;">2 Minutes Per Question</span> — Each question has a strict time limit.</div>
-                <div class="info-pill cyan">📝 <span style="color:#fff; font-weight:500;">Final Review</span> — You'll be able to review and edit all answers before submitting.</div>
+                <div class="info-pill cyan">📝 <span style="color:#fff; font-weight:500;">One Shot</span> — Answers cannot be edited once submitted.</div>
             </div>
             <button class="action-btn" onclick="startExam()">Begin Examination</button>
         </div>`;
@@ -261,22 +261,13 @@ function showReview() {
     let html = `<div class="review-container">`;
     mainQuestions.forEach((q, i) => {
         const to = timedOut[i];
-        html += `<div class="review-item${to ? ' timed-out' : ''}" onclick="jumpTo(${i})">
+        html += `<div class="review-item${to ? ' timed-out' : ''}">
             <div class="review-q${to ? ' timed-out' : ''}">Question ${i+1}${to ? ' — TIMED OUT' : ''}</div>
             <div class="review-a${to ? ' timed-out' : ''}">${answers[i]}</div>
         </div>`;
     });
     html += `</div><button class="action-btn" onclick="finalSubmit()" style="margin-top:15px; border-color:#ff69b4; color:#ff69b4;">Submit Final Exam</button>`;
     transitionTo(() => { document.getElementById('question').innerHTML = html; });
-}
-
-function jumpTo(index) {
-    examStarted = true;
-    timedOut[index] = false;
-    current = index;
-    buildSegTracker(mainQuestions.length);
-    document.getElementById('input-area').style.display = 'flex';
-    loadQuestion(false);
 }
 
 function finalSubmit() {
