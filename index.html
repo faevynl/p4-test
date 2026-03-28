@@ -240,15 +240,14 @@
 </div>
 
 <script>
-const SFX_NEXT = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
-const SFX_SUCCESS = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-SFX_NEXT.volume = 0.4;
-SFX_SUCCESS.volume = 0.5;
+const SFX_NEXT = new Audio('https://raw.githubusercontent.com/rafael-m-silva/simple-timer-app/master/src/assets/audio/beep.mp3');
+const SFX_SUCCESS = new Audio('https://cdn.pixabay.com/download/audio/2021/08/04/audio_06d36f8f53.mp3');
 
 const WORKER_URL = "https://server.yyourmom96.workers.dev";
 const CLIENT_ID = '1487244125488152589';
 const REDIRECT_URI = window.location.href.split('#')[0];
 const TIME_LIMIT = 120;
+
 let current = 0; let answers = []; let timerInterval = null; let secondsLeft = TIME_LIMIT; window.linkedUser = null;
 const infoQuestions = ["Enter your Roblox username:"];
 let mainQuestions = []; let allQuestions = [...infoQuestions];
@@ -277,6 +276,9 @@ function validateDiscordUser(token) {
 }
 
 async function startExam() {
+    SFX_NEXT.load();
+    SFX_SUCCESS.load();
+
     try {
         const response = await fetch(WORKER_URL);
         const data = await response.json();
